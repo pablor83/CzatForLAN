@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -21,14 +22,14 @@ public class WindowOfCzat extends JFrame{
 	PanelForOptions panelForOptions = new PanelForOptions();
 	
 	JMenuBar menuBar = new JMenuBar();
-	JMenu menu;
+	JMenu menu, help;
 	
 	
 	
 	private WindowOfCzat() {
-		
-		Dimension dimension = new Dimension(970, 570);	
-		setMinimumSize(dimension);
+				
+		setMinimumSize(new Dimension(970, 570));
+		setMaximumSize(new Dimension(getWidth(), getHeight()));
 		setTitle("Czat for LAN");
 		setLocationRelativeTo(null);
 		setLayout(new GridBagLayout());
@@ -39,6 +40,10 @@ public class WindowOfCzat extends JFrame{
 		
 		menu = new JMenu("Plik");
 		menuBar.add(menu);
+		
+		help = new JMenu("Pomoc");
+		menuBar.add(Box.createHorizontalGlue());
+		menuBar.add(help);
 		
 		setJMenuBar(menuBar);		
 		
@@ -68,8 +73,7 @@ public class WindowOfCzat extends JFrame{
 		
 		add(panelForOptions, gridBagConstraints);
 		
-//		repaint();
-		
+		repaint();
 	}
 
 	public static void main(String[] args) {
