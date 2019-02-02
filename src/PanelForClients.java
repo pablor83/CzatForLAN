@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -11,7 +12,6 @@ public class PanelForClients extends JPanel {
 	public PanelForClients() {
 		
 		setLayout(null);
-		
 		
 		setBorder(BorderFactory.createLineBorder(Color.black, 1));		
 		TitledBorder borderForClients = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Przy³¹czeni klienci");
