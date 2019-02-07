@@ -1,7 +1,6 @@
-import java.awt.Checkbox;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -15,42 +14,56 @@ public class PanelForReceivedAndSend extends JPanel {
 	
 	JTextArea windowOfReceivedMessages, fieldOfSendMessage;
 	JCheckBox checkBoxForSendingByTheEnter;
+	
+	
 
 	public PanelForReceivedAndSend() {
-
+		
+		
 		setLayout(null);
 		
-		JLabel receivedLabel = new JLabel("Otrzymane wiadomoœci:");
-		receivedLabel.setBounds(20, 10, 140, 20);
+		windowOfReceivedMessages = new JTextArea();		
+		JScrollPane scrollForReceivedMessage = new JScrollPane(windowOfReceivedMessages);
+		
+		fieldOfSendMessage = new JTextArea();
+		JScrollPane scrollForSendMessage = new JScrollPane(fieldOfSendMessage);
+		
+		JLabel receivedLabel = new JLabel("Otrzymane wiadomoœci: ");
+		receivedLabel.setBounds(20, 10, 150, 20);
 		add(receivedLabel);
 		
-		JLabel sendLabel = new JLabel("Wyœlij:");
-		sendLabel.setBounds(20, 380, 100, 20);
-		add(sendLabel);		
+		JLabel sendLabel = new JLabel("Wyœlij: ");
+		
 
 		setBorder(BorderFactory.createLineBorder(Color.black, 1));
 		
-		checkBoxForSendingByTheEnter = new JCheckBox("Wysy³aj po naciœniêciu przycisku Enter");
-		checkBoxForSendingByTheEnter.setBounds(450, 380, 250, 20);
-		add(checkBoxForSendingByTheEnter);
-		
-		windowOfReceivedMessages = new JTextArea();
-		windowOfReceivedMessages.setLineWrap(true);
-		
-		fieldOfSendMessage = new JTextArea();
-		fieldOfSendMessage.setLineWrap(true);
-
-		JScrollPane scrollForReceivedMessage = new JScrollPane(windowOfReceivedMessages);
-		scrollForReceivedMessage.setBounds(20, 30, 690, 330);
-		add(scrollForReceivedMessage);
-		
-		JScrollPane scrollForSendMessage = new JScrollPane(fieldOfSendMessage);
-		scrollForSendMessage.setBounds(20, 405, 690, 50);
-		add(scrollForSendMessage);
-
 		TitledBorder borderForChat = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Chat");
 		borderForChat.setTitleJustification(TitledBorder.CENTER);
 		setBorder(borderForChat);
+
+		
+		addComponentListener(new ComponentAdapter() {
+			
+			public void componentResized(ComponentEvent e) {
+								
+				
+				scrollForReceivedMessage.setBounds(20, 30, getWidth()-41, getHeight()-161);
+				add(scrollForReceivedMessage);
+				windowOfReceivedMessages.setLineWrap(true);
+				System.out.println(getHeight());
+				
+				sendLabel.setBounds(20, getHeight()-111, 100, 20);
+				add(sendLabel);
+
+				scrollForSendMessage.setBounds(20, getHeight()-86, getWidth()-41, 50);
+				add(scrollForSendMessage);
+				fieldOfSendMessage.setLineWrap(true);
+				
+				revalidate();
+				repaint();
+				
+			}
+		});
 
 	}
 

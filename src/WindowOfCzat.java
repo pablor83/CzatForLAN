@@ -1,5 +1,4 @@
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -42,44 +41,15 @@ public class WindowOfCzat extends JFrame {
 
 		setJMenuBar(menuBar);
 
-//		gridBagConstraints.anchor = GridBagConstraints.WEST;
-//		gridBagConstraints.gridx = 0;
-//		gridBagConstraints.gridy = 0;
-//		gridBagConstraints.insets = new Insets(0, 0, 0, 0);
-//		gridBagConstraints.ipadx = 730;
-//		gridBagConstraints.ipady = 490;	
-//		
-//		add(panelForReceivedAndSend, gridBagConstraints);		
-//				
-//		gridBagConstraints.anchor = GridBagConstraints.NORTH;
-//		gridBagConstraints.gridx = 1;
-//		gridBagConstraints.gridy = 0;
-//		gridBagConstraints.insets = new Insets(0, 5, 0, 0);
-//		gridBagConstraints.ipadx = 200;
-//		gridBagConstraints.ipady = 200;
-//		
-//		add(panelForClients, gridBagConstraints);
-//		
-//		gridBagConstraints.anchor = GridBagConstraints.SOUTH;
-//		gridBagConstraints.gridx = 1;
-//		gridBagConstraints.gridy = 0;
-//		gridBagConstraints.insets = new Insets(0, 5, 0, 0);
-//		gridBagConstraints.ipadx = 200;
-//		gridBagConstraints.ipady = 290;	
-//		
-//		add(panelForOptions, gridBagConstraints);
-
 		getContentPane().addComponentListener(new ComponentAdapter() {
 
 			public void componentResized(ComponentEvent e) {
-
-				Component component = (Component) e.getSource();
 
 				gridBagConstraints.anchor = GridBagConstraints.WEST;
 				gridBagConstraints.gridx = 0;
 				gridBagConstraints.gridy = 0;
 				gridBagConstraints.insets = new Insets(0, 0, 0, 10);
-				gridBagConstraints.ipadx = 730;
+				gridBagConstraints.ipadx = getWidth() - 240;
 				gridBagConstraints.ipady = getHeight() - 80;
 
 				add(panelForReceivedAndSend, gridBagConstraints);
@@ -116,7 +86,7 @@ public class WindowOfCzat extends JFrame {
 				add(panelForOptions, gridBagConstraints);
 
 				revalidate();
-			};
+			}
 		});
 	}
 
