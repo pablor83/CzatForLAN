@@ -1,3 +1,4 @@
+package chat;
 import java.awt.Color;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -12,8 +13,8 @@ import javax.swing.border.TitledBorder;
 
 public class PanelForReceivedAndSend extends JPanel {
 	
-	JTextArea windowOfReceivedMessages, fieldOfSendMessage;
-	JCheckBox checkBoxForSendingByTheEnter;
+	private JTextArea windowOfReceivedMessages, fieldOfSendMessage;
+	private JCheckBox checkBoxForSendingByTheEnter;
 	
 	
 
@@ -50,7 +51,6 @@ public class PanelForReceivedAndSend extends JPanel {
 				scrollForReceivedMessage.setBounds(20, 30, getWidth()-41, getHeight()-161);
 				add(scrollForReceivedMessage);
 				windowOfReceivedMessages.setLineWrap(true);
-				System.out.println(getHeight());
 				
 				sendLabel.setBounds(20, getHeight()-111, 100, 20);
 				add(sendLabel);
@@ -65,6 +65,13 @@ public class PanelForReceivedAndSend extends JPanel {
 			}
 		});
 
+	}
+	
+	public synchronized void setTextInWindowChat(String text) {
+		
+		windowOfReceivedMessages.append(text);
+		windowOfReceivedMessages.setCaretPosition(windowOfReceivedMessages.getDocument().getLength());
+		
 	}
 
 }

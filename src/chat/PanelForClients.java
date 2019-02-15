@@ -1,3 +1,4 @@
+package chat;
 import java.awt.Color;
 
 import javax.swing.BorderFactory;
