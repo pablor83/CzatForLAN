@@ -36,7 +36,8 @@ public class WindowOfChat extends JFrame {
 		panelForOptions = new PanelForOptions();
 		
 		Server server = new Server(panelForReceivedAndSend);
-
+		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
+		ServerUDP serverUDP = new ServerUDP(clientOfChat);
 		menuBar = new JMenuBar();
 
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();
@@ -98,6 +99,8 @@ public class WindowOfChat extends JFrame {
 		});
 
 		setVisible(true);
+		
+		ClientUDP clientUDP = new ClientUDP();
 	}
 
 	public static void main(String[] args) {

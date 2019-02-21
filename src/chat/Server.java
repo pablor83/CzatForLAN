@@ -11,15 +11,15 @@ import java.util.Date;
 
 public class Server implements Runnable {
 
-	ServerSocket servSocket;
-	InetAddress inetAddress;
+	private ServerSocket servSocket;
+	private InetAddress inetAddress;
 
-	PanelForReceivedAndSend panelForReceivedAndSend;
+	private PanelForReceivedAndSend panelForReceivedAndSend;
 
-	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-	Thread thread;
-	Date date;
+	private Thread thread;
+	private Date date;
 
 	Server(PanelForReceivedAndSend panelForReceivedAndSend) {
 
@@ -56,7 +56,7 @@ public class Server implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		System.out.println("Po³¹czono");
 		String name = inetAddress.getHostName();
 
 		startNewServer();
@@ -71,8 +71,8 @@ public class Server implements Runnable {
 
 				if (text == null) {
 
-					panelForReceivedAndSend.setTextInWindowChat(name + "> " + "Roz³¹czy³ siê" + "\n"
-							+ simpleDateFormat.format(date) + "\n\n");
+					panelForReceivedAndSend.setTextInWindowChat(
+							name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 					socket.close();
 					break;
 
@@ -84,19 +84,21 @@ public class Server implements Runnable {
 					name = text.substring(6);
 
 					date = new Date();
-					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange
-							+ " zmieni³ nick na " + name + "\n" + simpleDateFormat.format(date) + "\n\n");
+					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieni³ nick na "
+							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
 
 				} else {
 					date = new Date();
-					panelForReceivedAndSend.setTextInWindowChat(name + "> " + text + "\n" + simpleDateFormat.format(date) + "\n\n");
+					panelForReceivedAndSend
+							.setTextInWindowChat(name + "> " + text + "\n" + simpleDateFormat.format(date) + "\n\n");
 				}
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 //				e.printStackTrace();
 
-				panelForReceivedAndSend.setTextInWindowChat(name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
+				panelForReceivedAndSend.setTextInWindowChat(
+						name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 				try {
 					socket.close();
 				} catch (IOException e1) {
