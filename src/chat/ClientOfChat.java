@@ -31,7 +31,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 		Socket socket = new Socket();
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(ipToConnect, 4999);
 		try {			
-			socket.connect(inetSocketAddress);;
+			socket.connect(inetSocketAddress);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
