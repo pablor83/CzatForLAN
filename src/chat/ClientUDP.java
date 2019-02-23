@@ -27,7 +27,7 @@ public class ClientUDP {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} System.out.println("Client UDP");
+		}
 		
 		datagramSocket.close();
 	}

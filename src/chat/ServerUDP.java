@@ -13,42 +13,44 @@ public class ServerUDP implements Runnable {
 	private byte[] bufor = new byte[256];
 	private String takeIP;
 	private ClientOfChat clientOfChat;
-	
+
 	public ServerUDP(ClientOfChat clientOfChat) {
-		
+
 		this.clientOfChat = clientOfChat;
-		
+
 		Thread thread = new Thread(this);
 		thread.start();
 	}
-	
+
 	@Override
-	public void run() {		
-		
+	public void run() {
+
 		try {
 			multicastSocket = new MulticastSocket(4111);
 			inetAddress = InetAddress.getByName("230.0.0.0");
 			multicastSocket.joinGroup(inetAddress);
+			
+			InetAddress localIP = InetAddress.getLocalHost();
+
+			while (true) {
+
+				datagramPacket = new DatagramPacket(bufor, bufor.length);
+
+				multicastSocket.receive(datagramPacket);
+
+				takeIP = new String(bufor).trim();
+				
+				if (takeIP != null && !takeIP.equals(localIP.getHostAddress())) {
+					clientOfChat.runNewThreadOfClient(takeIP);
+					System.out.println("£¹czê "+takeIP);
+				}
+				takeIP = null;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} System.out.println("Server UPD");
-		
-		while(true) {
-			
-			datagramPacket = new DatagramPacket(bufor, bufor.length);
-			try {
-				multicastSocket.receive(datagramPacket);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			clientOfChat.runNewThreadOfClient(new String(bufor));
-			takeIP = new String(bufor);
-			System.out.println("ServerUDP "+takeIP);
-			
 		}
-		
+
 	}
 
 //	public static void main(String[] args) {

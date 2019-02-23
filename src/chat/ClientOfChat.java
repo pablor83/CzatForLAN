@@ -4,9 +4,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import javax.print.attribute.standard.RequestingUserName;
 
 public class ClientOfChat implements Runnable, KeyListener {
 
@@ -14,6 +17,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 	private String textForSend;
 	
 	private String ipToConnect;
+	private String theLastIPConnection;
 	
 	private Thread thread;
 
@@ -22,16 +26,27 @@ public class ClientOfChat implements Runnable, KeyListener {
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.panelForReceivedAndSend.getFieldOfSendMessage().addKeyListener(this);
 		
-		runNewThreadOfClient("localhost");
+		InetAddress localIPtoConnect;
+		
+		try {
+			localIPtoConnect = InetAddress.getLocalHost();
+			runNewThreadOfClient(localIPtoConnect.getHostAddress());
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 
 	@Override
 	public void run() {
-
+		System.out.println("Client "+thread.getName());
 		Socket socket = new Socket();
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(ipToConnect, 4999);
 		try {			
 			socket.connect(inetSocketAddress);
+			theLastIPConnection = ipToConnect;
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -39,7 +54,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Run");
+		
 
 		while (true) {
 
@@ -65,6 +80,11 @@ public class ClientOfChat implements Runnable, KeyListener {
 		this.ipToConnect = ipToConnect;
 		thread = new Thread(this);
 		thread.start();
+	}
+	
+	public String getTheLastIPConnection() {
+		
+		return theLastIPConnection;
 	}
 
 	@Override

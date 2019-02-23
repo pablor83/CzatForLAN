@@ -12,18 +12,20 @@ import java.util.Date;
 public class Server implements Runnable {
 
 	private ServerSocket servSocket;
-	private InetAddress inetAddress;
+	private InetAddress remoteIPAddress;
 
 	private PanelForReceivedAndSend panelForReceivedAndSend;
+	private ClientOfChat clientOfChat;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 	private Thread thread;
 	private Date date;
 
-	Server(PanelForReceivedAndSend panelForReceivedAndSend) {
+	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
+		this.clientOfChat = clientOfChat;
 
 		try {
 			servSocket = new ServerSocket(4999);
@@ -50,14 +52,31 @@ public class Server implements Runnable {
 
 		try {
 			socket = servSocket.accept();
-			inetAddress = socket.getInetAddress();
+			remoteIPAddress = socket.getInetAddress();
+			InetAddress localIP = InetAddress.getLocalHost();
+			
+			System.out.println("S ia "+remoteIPAddress.getHostAddress());
+			System.out.println("S2 "+ localIP.getHostAddress());
+			System.out.println(remoteIPAddress.getHostAddress().equals(localIP.getHostAddress()));
+			System.out.println(remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection()));
+			System.out.println(clientOfChat.getTheLastIPConnection());
+			System.out.println("");
+			
+			if (!remoteIPAddress.getHostAddress().equals(localIP.getHostAddress()) && !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
+				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress());
+				System.out.println("Po³¹czone z "+remoteIPAddress.getHostAddress());
+				System.out.println("");
+			}
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Po³¹czono");
-		String name = inetAddress.getHostName();
+		
+		String name = remoteIPAddress.getHostName();
+		
+		date = new Date();
+		panelForReceivedAndSend.setTextInWindowChat(name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 
 		startNewServer();
 
