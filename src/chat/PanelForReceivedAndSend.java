@@ -81,9 +81,9 @@ public class PanelForReceivedAndSend extends JPanel {
 
 		return fieldOfSendMessage.getText();
 	}
-	
+
 	public JTextArea getFieldOfSendMessage() {
-		
+
 		return fieldOfSendMessage;
 	}
 
@@ -100,7 +100,6 @@ public class PanelForReceivedAndSend extends JPanel {
 
 				getTextFromfieldOfSendMessage();
 				fieldOfSendMessage.setText("");
-				System.out.println("Enter");
 			}
 		};
 

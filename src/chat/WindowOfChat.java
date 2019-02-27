@@ -11,7 +11,6 @@ import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JPanel;
 
 public class WindowOfChat extends JFrame {
 
@@ -36,7 +35,7 @@ public class WindowOfChat extends JFrame {
 		panelForOptions = new PanelForOptions();
 
 		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
-		Server server = new Server(panelForReceivedAndSend, clientOfChat);		
+		Server server = new Server(panelForReceivedAndSend, clientOfChat);
 		ServerUDP serverUDP = new ServerUDP(clientOfChat);
 		menuBar = new JMenuBar();
 
@@ -99,7 +98,7 @@ public class WindowOfChat extends JFrame {
 		});
 
 		setVisible(true);
-		
+
 		ClientUDP clientUDP = new ClientUDP();
 	}
 

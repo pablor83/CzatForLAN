@@ -12,15 +12,16 @@ import java.util.Date;
 public class Server implements Runnable {
 
 	private ServerSocket servSocket;
-	private InetAddress remoteIPAddress;
 
 	private PanelForReceivedAndSend panelForReceivedAndSend;
 	private ClientOfChat clientOfChat;
 
-	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy'r.' HH:mm:ss");
 
 	private Thread thread;
 	private Date date;
+
+	boolean sendMessage = true;
 
 	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat) {
 
@@ -49,34 +50,30 @@ public class Server implements Runnable {
 	public void run() {
 
 		Socket socket = new Socket();
+		InetAddress remoteIPAddress = null;
 
 		try {
 			socket = servSocket.accept();
 			remoteIPAddress = socket.getInetAddress();
+			String ipRemote = remoteIPAddress.getHostAddress();
+
 			InetAddress localIP = InetAddress.getLocalHost();
-			
-			System.out.println("S ia "+remoteIPAddress.getHostAddress());
-			System.out.println("S2 "+ localIP.getHostAddress());
-			System.out.println(remoteIPAddress.getHostAddress().equals(localIP.getHostAddress()));
-			System.out.println(remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection()));
-			System.out.println(clientOfChat.getTheLastIPConnection());
-			System.out.println("");
-			
-			if (!remoteIPAddress.getHostAddress().equals(localIP.getHostAddress()) && !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
+
+			if (!remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
+					&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
 				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress());
-				System.out.println("Po³¹czone z "+remoteIPAddress.getHostAddress());
-				System.out.println("");
 			}
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		String name = remoteIPAddress.getHostName();
-		
+
 		date = new Date();
-		panelForReceivedAndSend.setTextInWindowChat(name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
+		panelForReceivedAndSend
+				.setTextInWindowChat(name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 
 		startNewServer();
 
@@ -88,15 +85,6 @@ public class Server implements Runnable {
 
 				String text = bufferedStream.readLine();
 
-				if (text == null) {
-
-					panelForReceivedAndSend.setTextInWindowChat(
-							name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
-					socket.close();
-					break;
-
-				}
-
 				if (text.matches("/nick .+")) {
 					String nameBeforeChange = name;
 
@@ -106,11 +94,24 @@ public class Server implements Runnable {
 					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieni³ nick na "
 							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
 
-				} else {
-					date = new Date();
-					panelForReceivedAndSend
-							.setTextInWindowChat(name + "> " + text + "\n" + simpleDateFormat.format(date) + "\n\n");
+				} else if (getSendMessage()) {
+
+					if (!clientOfChat.getIsReceivingTime()) {
+
+						panelForReceivedAndSend.setTextInWindowChat(
+								name + "> " + text + "\n" + simpleDateFormat.format(new Date()) + "\n\n");
+					}
+
+					else {
+
+						panelForReceivedAndSend.setTextInWindowChat(
+								name + "> " + text + "\n" + clientOfChat.getSendindTime() + "\n\n");
+						clientOfChat.setIsReceivingTime(false);
+					}
+
 				}
+
+				setSendMessage(true);
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -118,6 +119,9 @@ public class Server implements Runnable {
 
 				panelForReceivedAndSend.setTextInWindowChat(
 						name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
+				clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
+				sendMessage = false;
+				clientOfChat.setThreadsAsActive();
 				try {
 					socket.close();
 				} catch (IOException e1) {
@@ -129,6 +133,16 @@ public class Server implements Runnable {
 
 		}
 
+	}
+
+	synchronized public void setSendMessage(boolean sendMessage) {
+
+		this.sendMessage = sendMessage;
+	}
+
+	synchronized public boolean getSendMessage() {
+
+		return sendMessage;
 	}
 
 }

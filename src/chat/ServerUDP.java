@@ -29,7 +29,7 @@ public class ServerUDP implements Runnable {
 			multicastSocket = new MulticastSocket(4111);
 			inetAddress = InetAddress.getByName("230.0.0.0");
 			multicastSocket.joinGroup(inetAddress);
-			
+
 			InetAddress localIP = InetAddress.getLocalHost();
 
 			while (true) {
@@ -39,10 +39,10 @@ public class ServerUDP implements Runnable {
 				multicastSocket.receive(datagramPacket);
 
 				takeIP = new String(bufor).trim();
-				
+
 				if (takeIP != null && !takeIP.equals(localIP.getHostAddress())) {
+
 					clientOfChat.runNewThreadOfClient(takeIP);
-					System.out.println("£¹czê "+takeIP);
 				}
 				takeIP = null;
 			}
@@ -52,36 +52,5 @@ public class ServerUDP implements Runnable {
 		}
 
 	}
-
-//	public static void main(String[] args) {
-//		
-//		ServerUDP serverUDP = new ServerUDP();
-//		
-//		try {
-//			serverUDP.multicastSocket = new MulticastSocket(4111);
-//			serverUDP.inetAddress = InetAddress.getByName("230.0.0.0");
-//			serverUDP.multicastSocket.joinGroup(serverUDP.inetAddress);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} System.out.println("Server UPD");
-//		
-//		while(true) {
-//			
-//			serverUDP.datagramPacket = new DatagramPacket(serverUDP.bufor, serverUDP.bufor.length);
-//			try {
-//				serverUDP.multicastSocket.receive(serverUDP.datagramPacket);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			
-//			serverUDP.takeIP = new String(serverUDP.bufor);
-//			System.out.println(serverUDP.takeIP);
-//			
-//		}
-//		
-//
-//	}
 
 }
