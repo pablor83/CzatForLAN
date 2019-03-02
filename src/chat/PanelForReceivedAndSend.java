@@ -76,6 +76,11 @@ public class PanelForReceivedAndSend extends JPanel {
 		windowOfReceivedMessages.setCaretPosition(windowOfReceivedMessages.getDocument().getLength());
 
 	}
+	
+	public synchronized void clearWindow() {
+		
+		windowOfReceivedMessages.setText("");
+	}
 
 	public synchronized String getTextFromfieldOfSendMessage() {
 

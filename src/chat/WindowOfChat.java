@@ -35,7 +35,7 @@ public class WindowOfChat extends JFrame {
 		panelForOptions = new PanelForOptions();
 
 		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
-		Server server = new Server(panelForReceivedAndSend, clientOfChat);
+		Server server = new Server(panelForReceivedAndSend, clientOfChat, panelForClients);
 		ServerUDP serverUDP = new ServerUDP(clientOfChat);
 		menuBar = new JMenuBar();
 

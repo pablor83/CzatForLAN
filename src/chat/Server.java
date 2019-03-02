@@ -15,6 +15,7 @@ public class Server implements Runnable {
 
 	private PanelForReceivedAndSend panelForReceivedAndSend;
 	private ClientOfChat clientOfChat;
+	private PanelForClients panelForClients;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy'r.' HH:mm:ss");
 
@@ -23,10 +24,12 @@ public class Server implements Runnable {
 
 	boolean sendMessage = true;
 
-	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat) {
+	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat,
+			PanelForClients panelForClients) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.clientOfChat = clientOfChat;
+		this.panelForClients = panelForClients;
 
 		try {
 			servSocket = new ServerSocket(4999);
@@ -51,13 +54,17 @@ public class Server implements Runnable {
 
 		Socket socket = new Socket();
 		InetAddress remoteIPAddress = null;
+		InetAddress localIP = null;
+		String name;
+		int numberClientOnList;
 
 		try {
 			socket = servSocket.accept();
-			remoteIPAddress = socket.getInetAddress();
-			String ipRemote = remoteIPAddress.getHostAddress();
 
-			InetAddress localIP = InetAddress.getLocalHost();
+			localIP = InetAddress.getLocalHost();
+			remoteIPAddress = socket.getInetAddress();
+
+//			String ipRemote = remoteIPAddress.getHostAddress();
 
 			if (!remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
 					&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
@@ -69,7 +76,12 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 
-		String name = remoteIPAddress.getHostName();
+		name = remoteIPAddress.getHostName();
+
+		numberClientOnList = panelForClients.getNumberOfClient();
+
+		panelForClients.addNameOfClient(name);
+		panelForClients.setNextNumberOfClient();
 
 		date = new Date();
 		panelForReceivedAndSend
@@ -85,14 +97,18 @@ public class Server implements Runnable {
 
 				String text = bufferedStream.readLine();
 
-				if (text.matches("/nick .+")) {
+				if (getSendMessage() && text.matches("/nick .+")) {
 					String nameBeforeChange = name;
+
+					int numberOfCell = panelForClients.getTheTablePosition(nameBeforeChange);
 
 					name = text.substring(6);
 
 					date = new Date();
 					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieni³ nick na "
 							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
+
+					panelForClients.changeValueOfCell(name, numberOfCell, 0);
 
 				} else if (getSendMessage()) {
 
@@ -117,10 +133,12 @@ public class Server implements Runnable {
 				// TODO Auto-generated catch block
 //				e.printStackTrace();
 
+				panelForClients.removeClientFromList(numberClientOnList);
+				panelForClients.setDecreaseClientNumber();
 				panelForReceivedAndSend.setTextInWindowChat(
 						name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 				clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
-				sendMessage = false;
+				setSendMessage(false);
 				clientOfChat.setThreadsAsActive();
 				try {
 					socket.close();

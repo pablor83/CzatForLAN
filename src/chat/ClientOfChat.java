@@ -190,8 +190,13 @@ public class ClientOfChat implements Runnable, KeyListener {
 			panelForReceivedAndSend.getFieldOfSendMessage().setEditable(false);
 
 			String text = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
-
-			if (text.matches(".+")) {
+			
+			if(text.equals("/clear")) {
+				
+				panelForReceivedAndSend.clearWindow();
+				panelForReceivedAndSend.getFieldOfSendMessage().setText("");
+				
+			} else if (text.matches(".+")) {
 
 				textForSend = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
 				date = new Date();
