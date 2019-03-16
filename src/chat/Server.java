@@ -22,19 +22,41 @@ public class Server implements Runnable {
 	private Thread thread;
 	private Date date;
 
-	boolean sendMessage = true;
+	private boolean sendMessage = true;
+	private boolean closeServer = false;
+	private boolean privateServer = false;
 
-	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat,
-			PanelForClients panelForClients) {
+	private int port;
+	private int countdownForPrivateServer = 1;
+
+	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, int port) {
+
+		this.panelForReceivedAndSend = panelForReceivedAndSend;
+		this.clientOfChat = clientOfChat;
+
+		try {
+			servSocket = new ServerSocket(port);
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+
+		startNewServer();
+
+	}
+
+	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, PanelForClients panelForClients,
+			int port) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.clientOfChat = clientOfChat;
 		this.panelForClients = panelForClients;
+		this.port = port;
 
 		try {
-			servSocket = new ServerSocket(4999);
+			servSocket = new ServerSocket(port);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
@@ -51,13 +73,13 @@ public class Server implements Runnable {
 
 	@Override
 	public void run() {
-
+		
 		Socket socket = new Socket();
 		InetAddress remoteIPAddress = null;
 		InetAddress localIP = null;
 		String name;
-		int numberClientOnList;
-
+		int numberClientOnList = 0;
+		
 		try {
 			socket = servSocket.accept();
 
@@ -65,29 +87,45 @@ public class Server implements Runnable {
 			remoteIPAddress = socket.getInetAddress();
 
 //			String ipRemote = remoteIPAddress.getHostAddress();
-
-			if (!remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
+//			System.out.println("PORT "+port);
+			if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
 					&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
-				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress());
+				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
 		name = remoteIPAddress.getHostName();
+		
+		if(panelForClients != null) {
+			
+			numberClientOnList = panelForClients.getNumberOfClient();
 
-		numberClientOnList = panelForClients.getNumberOfClient();
-
-		panelForClients.addNameOfClient(name);
-		panelForClients.setNextNumberOfClient();
+			panelForClients.addNameOfClient(name);
+			panelForClients.addIPToList(remoteIPAddress.getHostAddress());
+//			panelForClients.setNextNumberOfClient();			
+		}
+		
 
 		date = new Date();
 		panelForReceivedAndSend
 				.setTextInWindowChat(name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 
-		startNewServer();
+		if(panelForClients != null) {
+			
+			startNewServer();
+		}
+		
+		else if(getNumberOfPrivateServers()>0) {
+			
+			setDecreasePrivateServer();			
+			startNewServer();
+		}
+		
+		
 
 		while (true) {
 
@@ -96,19 +134,30 @@ public class Server implements Runnable {
 				BufferedReader bufferedStream = new BufferedReader(inputStreamReader);
 
 				String text = bufferedStream.readLine();
-
+				
+				if(getStatusOfCloseServerOption()) {
+					
+					socket.close();
+					servSocket.close();
+					break;
+				}
+				
 				if (getSendMessage() && text.matches("/nick .+")) {
 					String nameBeforeChange = name;
-
-					int numberOfCell = panelForClients.getTheTablePosition(nameBeforeChange);
+					
+					
 
 					name = text.substring(6);
 
 					date = new Date();
 					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieni³ nick na "
 							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
-
-					panelForClients.changeValueOfCell(name, numberOfCell, 0);
+					if(panelForClients != null) {
+						
+						int numberOfCell = panelForClients.getTheTablePosition(nameBeforeChange);
+						panelForClients.changeValueOfCell(name, numberOfCell, 0);
+					}
+					
 
 				} else if (getSendMessage()) {
 
@@ -130,11 +179,16 @@ public class Server implements Runnable {
 				setSendMessage(true);
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 //				e.printStackTrace();
-
-				panelForClients.removeClientFromList(numberClientOnList);
-				panelForClients.setDecreaseClientNumber();
+				
+				if(panelForClients != null) {
+					int numberOfCell = panelForClients.getTheTablePosition(name);
+					panelForClients.removeClientPanelList(panelForClients.getTheTablePosition(name));
+					panelForClients.removeIPFromList(panelForClients.getTheTablePosition(name));
+				}
+				
+//				panelForClients.setDecreaseClientNumber();
 				panelForReceivedAndSend.setTextInWindowChat(
 						name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 				clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
@@ -143,7 +197,7 @@ public class Server implements Runnable {
 				try {
 					socket.close();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					
 					e1.printStackTrace();
 				}
 				break;
@@ -158,9 +212,39 @@ public class Server implements Runnable {
 		this.sendMessage = sendMessage;
 	}
 
+	synchronized public void setCloseServer(boolean b) {
+
+		closeServer = b;
+	}
+	
+	synchronized public void setPrivateServer(boolean b) {
+		
+		privateServer = b;
+	}
+	
+	synchronized public void setDecreasePrivateServer() {
+		
+		countdownForPrivateServer--;
+	}
+
 	synchronized public boolean getSendMessage() {
 
 		return sendMessage;
+	}
+	
+	synchronized public boolean getStatusOfCloseServerOption() {
+		
+		return closeServer;
+	}
+	
+	synchronized public boolean getStatusOfPrivateServer() {
+		
+		return privateServer;
+	}
+	
+	synchronized public int getNumberOfPrivateServers() {
+		
+		return countdownForPrivateServer;
 	}
 
 }

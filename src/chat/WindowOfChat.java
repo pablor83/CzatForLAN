@@ -31,12 +31,13 @@ public class WindowOfChat extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		panelForReceivedAndSend = new PanelForReceivedAndSend();
-		panelForClients = new PanelForClients();
+		panelForClients = new PanelForClients(panelForReceivedAndSend);
 		panelForOptions = new PanelForOptions();
 
-		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
-		Server server = new Server(panelForReceivedAndSend, clientOfChat, panelForClients);
+		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend, 4999);
+		Server server = new Server(panelForReceivedAndSend, clientOfChat, panelForClients, 4999);
 		ServerUDP serverUDP = new ServerUDP(clientOfChat);
+		ServerForPrivateChat serverForPrivateChat = new ServerForPrivateChat();
 		menuBar = new JMenuBar();
 
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();

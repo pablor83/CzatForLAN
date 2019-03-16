@@ -17,7 +17,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 	private PanelForReceivedAndSend panelForReceivedAndSend;
 	private String textForSend = null;
-	int i = 1;
+	private int port;
 	private String ipToConnect;
 	private String theLastIPConnection;
 	private String sendingTime;
@@ -30,8 +30,15 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 	private boolean runThisThread = false;
 	private boolean isReceivingTime = false;
-
+	private boolean close = false;
+	
 	public ClientOfChat(PanelForReceivedAndSend panelForReceivedAndSend) {
+
+		this.panelForReceivedAndSend = panelForReceivedAndSend;
+		this.panelForReceivedAndSend.getFieldOfSendMessage().addKeyListener(this);
+	}
+
+	public ClientOfChat(PanelForReceivedAndSend panelForReceivedAndSend, int port) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.panelForReceivedAndSend.getFieldOfSendMessage().addKeyListener(this);
@@ -40,24 +47,25 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		try {
 			localIPtoConnect = InetAddress.getLocalHost();
-			runNewThreadOfClient(localIPtoConnect.getHostAddress());
+			runNewThreadOfClient(localIPtoConnect.getHostAddress(), port);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
-
+	
 	@Override
 	public void run() {
-
+		
 		String tName = thread.getName();
 		Socket socket = new Socket();
-		InetSocketAddress inetSocketAddress = new InetSocketAddress(ipToConnect, 4999);
+		InetSocketAddress inetSocketAddress = new InetSocketAddress(getIPToConnect(), getPort());
+		
 		String theIPThatThisThreadCoonectTo = null;
 		try {
 			socket.connect(inetSocketAddress);
-			theLastIPConnection = ipToConnect;
+			theLastIPConnection = getIPToConnect();
 			InetAddress ipRemote = socket.getInetAddress();
 			theIPThatThisThreadCoonectTo = ipRemote.getHostAddress();
 
@@ -70,8 +78,13 @@ public class ClientOfChat implements Runnable, KeyListener {
 		}
 
 		while (true) {
-
+			
 			try {
+				
+				if(getStatusOfClosingOption()) {
+					socket.close();
+					break;
+				}
 
 				synchronized (this) {
 					if (!runThisThread) {
@@ -107,13 +120,23 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 			setSnoozeThreads();
 		}
-
+		System.out.println("CLIENT END");
 	}
 
-	public void runNewThreadOfClient(String ipToConnect) {
+	synchronized public void runNewThreadOfClient(String ipToConnect) {
 
 		this.ipToConnect = ipToConnect;
+		port = 4999;
 		thread = new Thread(this);
+		thread.start();
+	}
+
+	synchronized public void runNewThreadOfClient(String ipToConnect, int port) {
+
+		
+		thread = new Thread(this);
+		this.ipToConnect = ipToConnect;
+		this.port = port;
 		thread.start();
 	}
 
@@ -133,9 +156,24 @@ public class ClientOfChat implements Runnable, KeyListener {
 		listOfIPAddressesToDisconnect.add(ip);
 	}
 
+	synchronized public void setPortToConnect(int port) {
+
+		this.port = port;
+	}
+
 	synchronized public void setIsReceivingTime(boolean isReceivingTime) {
 
 		this.isReceivingTime = isReceivingTime;
+	}
+	
+	synchronized public void closeThread(boolean b) {
+		
+		close = b;
+	}
+	
+	synchronized public boolean getStatusOfClosingOption() {
+		
+		return close;
 	}
 
 	synchronized public String getTextForSend() {
@@ -175,6 +213,21 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		return isReceivingTime;
 	}
+	
+	synchronized public String getIPToConnect() {
+		
+		return ipToConnect;
+	}
+	
+	synchronized public int getPort() {
+		
+		return port;
+	}
+	
+	synchronized public Thread getThread() {
+		
+		return thread;
+	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -190,12 +243,12 @@ public class ClientOfChat implements Runnable, KeyListener {
 			panelForReceivedAndSend.getFieldOfSendMessage().setEditable(false);
 
 			String text = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
-			
-			if(text.equals("/clear")) {
-				
+
+			if (text.equals("/clear")) {
+
 				panelForReceivedAndSend.clearWindow();
 				panelForReceivedAndSend.getFieldOfSendMessage().setText("");
-				
+
 			} else if (text.matches(".+")) {
 
 				textForSend = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
