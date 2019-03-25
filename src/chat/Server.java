@@ -76,9 +76,9 @@ public class Server implements Runnable {
 		
 		Socket socket = new Socket();
 		InetAddress remoteIPAddress = null;
-		InetAddress localIP = null;
+		InetAddress localIP;
 		String name;
-		int numberClientOnList = 0;
+//		int numberClientOnList = 0;
 		
 		try {
 			socket = servSocket.accept();
@@ -102,7 +102,7 @@ public class Server implements Runnable {
 		
 		if(panelForClients != null) {
 			
-			numberClientOnList = panelForClients.getNumberOfClient();
+//			numberClientOnList = panelForClients.getNumberOfClient();
 
 			panelForClients.addNameOfClient(name);
 			panelForClients.addIPToList(remoteIPAddress.getHostAddress());

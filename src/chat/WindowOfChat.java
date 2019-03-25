@@ -14,13 +14,6 @@ import javax.swing.JMenuBar;
 
 public class WindowOfChat extends JFrame {
 
-	private PanelForReceivedAndSend panelForReceivedAndSend;
-	private PanelForClients panelForClients;
-	private PanelForOptions panelForOptions;
-
-	private JMenuBar menuBar;
-	private JMenu menu, help;
-
 	private WindowOfChat() {
 
 		setMinimumSize(new Dimension(970, 570));
@@ -29,23 +22,25 @@ public class WindowOfChat extends JFrame {
 		setLocationRelativeTo(null);
 		setLayout(new GridBagLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-		panelForReceivedAndSend = new PanelForReceivedAndSend();
-		panelForClients = new PanelForClients(panelForReceivedAndSend);
-		panelForOptions = new PanelForOptions();
+				
+		PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
+		ServerForPrivateChat serverForPrivateChat = new ServerForPrivateChat();
+		NotificationPanel notificationPanel = new NotificationPanel(serverForPrivateChat);
+		PanelForClients panelForClients = new PanelForClients(panelForReceivedAndSend, notificationPanel, serverForPrivateChat);
+		
 
 		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend, 4999);
 		Server server = new Server(panelForReceivedAndSend, clientOfChat, panelForClients, 4999);
 		ServerUDP serverUDP = new ServerUDP(clientOfChat);
-		ServerForPrivateChat serverForPrivateChat = new ServerForPrivateChat();
-		menuBar = new JMenuBar();
+		
+		JMenuBar menuBar = new JMenuBar();
 
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
-		menu = new JMenu("Plik");
+		JMenu menu = new JMenu("Plik");
 		menuBar.add(menu);
 
-		help = new JMenu("Pomoc");
+		JMenu help = new JMenu("Pomoc");
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(help);
 
@@ -91,8 +86,8 @@ public class WindowOfChat extends JFrame {
 					gridBagConstraints.ipady = 290;
 
 				}
-
-				add(panelForOptions, gridBagConstraints);
+				
+				add(notificationPanel, gridBagConstraints);
 
 				revalidate();
 			}

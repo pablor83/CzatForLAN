@@ -5,6 +5,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,11 +22,18 @@ public class PanelForClients extends JPanel implements MouseListener {
 	private DefaultTableModel tableModel;
 	private JTable table;
 	private Object[] nameOfClient;
+
 	private int numberOfClient = 1;
+
 	private ArrayList<String> listOfIPAddresses = new ArrayList<>();
 	private PanelForReceivedAndSend panelForReceivedAndSend = null;
+	private NotificationPanel notificationPanel;
 
-	public PanelForClients(PanelForReceivedAndSend panelForReceivedAndSend) {
+	ServerForPrivateChat serverForPrivateChat;
+	private int myServerPort = 5777;
+
+	public PanelForClients(PanelForReceivedAndSend panelForReceivedAndSend, NotificationPanel notificationPanel,
+			ServerForPrivateChat serverForPrivateChat) {
 
 		setLayout(null);
 		setBorder(BorderFactory.createLineBorder(Color.black, 1));
@@ -34,6 +43,8 @@ public class PanelForClients extends JPanel implements MouseListener {
 		setBorder(borderForClients);
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
+		this.notificationPanel = notificationPanel;
+		this.serverForPrivateChat = serverForPrivateChat;
 
 		tableModel = new DefaultTableModel() {
 
@@ -60,8 +71,6 @@ public class PanelForClients extends JPanel implements MouseListener {
 
 				scrollPane.setBounds(6, 20, 190, getHeight() - 29);
 				add(scrollPane);
-
-//				revalidate();
 			}
 		});
 
@@ -79,15 +88,20 @@ public class PanelForClients extends JPanel implements MouseListener {
 		tableModel.setValueAt(newValue, row, column);
 	}
 
-	synchronized public void setNextNumberOfClient() {
+	synchronized public void increaseMyServerPort() {
 
-		numberOfClient++;
+		myServerPort++;
 	}
 
-	synchronized public void setDecreaseClientNumber() {
-
-		numberOfClient--;
-	}
+//	synchronized public void setNextNumberOfClient() {
+//
+//		numberOfClient++;
+//	}
+//
+//	synchronized public void setDecreaseClientNumber() {
+//
+//		numberOfClient--;
+//	}
 
 	synchronized public void removeClientPanelList(int i) {
 
@@ -109,10 +123,10 @@ public class PanelForClients extends JPanel implements MouseListener {
 		return listOfIPAddresses.get(i);
 	}
 
-	synchronized public int getNumberOfClient() {
-
-		return numberOfClient;
-	}
+//	synchronized public int getNumberOfClient() {
+//
+//		return numberOfClient;
+//	}
 
 	synchronized public int getTheTablePosition(Object obj) {
 
@@ -131,14 +145,46 @@ public class PanelForClients extends JPanel implements MouseListener {
 		return numberOfCell;
 	}
 
+	synchronized public int getMyPrivateClientServerPort() {
+
+		return myServerPort;
+	}
+
+	synchronized public void checkPrivateServerPortAndPrivateClientPort() {
+
+		while (true) {
+
+			if (getMyPrivateClientServerPort() == serverForPrivateChat.getServerPort()) {
+
+				increaseMyServerPort();
+			} else
+				break;
+		}
+
+	}
+
 	@Override
 	synchronized public void mouseClicked(MouseEvent e) {
 
 		if (e.getClickCount() == 2) {
 
+			checkPrivateServerPortAndPrivateClientPort();
+			InetAddress ip = null;
+			try {
+				ip = InetAddress.getByName(listOfIPAddresses.get(table.getSelectedRow()));
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			serverForPrivateChat.setNick(table.getValueAt(table.getSelectedRow(), 0));
 			PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
 			ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(
-					listOfIPAddresses.get(table.getSelectedRow()), panelForReceivedAndSend);
+					listOfIPAddresses.get(table.getSelectedRow()), panelForReceivedAndSend, myServerPort,
+					tableModel.getValueAt(table.getSelectedRow(), 0));
+			
+			notificationPanel.setNotification(table.getValueAt(table.getSelectedColumn(), 0));
+			myServerPort++;
 		}
 	}
 

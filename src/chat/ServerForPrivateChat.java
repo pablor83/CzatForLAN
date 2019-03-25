@@ -7,13 +7,18 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ServerForPrivateChat implements Runnable {
 
-	int port = 5332;
-	ServerSocket serverSocket;
-	String remoteIP;
-	Thread thread;
+	private int port = 5332;
+
+	private ServerSocket serverSocket;
+	private String remoteIP;
+	private Thread thread;
+	private HashMap<Object, Boolean> hashMapForNotify = new HashMap<>();
+	private Object nick;
 
 	public ServerForPrivateChat() {
 
@@ -28,12 +33,6 @@ public class ServerForPrivateChat implements Runnable {
 		thread.start();
 	}
 
-//	public static void main(String[] args) {
-//
-//		ServerForPrivateChat serv = new ServerForPrivateChat();
-//
-//	}
-
 	@Override
 	public void run() {
 
@@ -41,11 +40,14 @@ public class ServerForPrivateChat implements Runnable {
 		String addressForConnection;
 		int port = getServerPort();
 		int remotePort;
+		
 
 		try {
 			socket = serverSocket.accept();
-
-//			runNewThread();
+			
+			Object nick = this.nick;
+			
+			runNewThread();
 
 			InetAddress remoteAdress = socket.getInetAddress();
 
@@ -62,16 +64,31 @@ public class ServerForPrivateChat implements Runnable {
 
 			PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
 			panelForReceivedAndSend.setTextInWindowChat("serwer\n");
-			panelForReceivedAndSend.setTextInWindowChat("Lubie placki\nJohny Bravo");
-			
+
 			ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
 			Server server = new Server(panelForReceivedAndSend, clientOfChat, getServerPort());
 			
-			System.out.println(addressForConnection+" S "+remotePort);
-			PrivateChatWindow privateWindow = new PrivateChatWindow(addressForConnection, remotePort,
-					panelForReceivedAndSend, clientOfChat, server, getServerPort());
+			setIncreasePort();
+			
+			synchronized (this) {				
+				
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			System.out.println(hashMapForNotify.get(nick));
+			if(hashMapForNotify.get(nick)) {
+				System.out.println(hashMapForNotify.get(nick));
+				PrivateChatWindow privateWindow = new PrivateChatWindow(addressForConnection, remotePort, panelForReceivedAndSend, clientOfChat, server, port, nick);
+			}
+			
+			
 
-//			setIncreasePort();
+			
 
 		} catch (IOException e) {
 
@@ -95,6 +112,17 @@ public class ServerForPrivateChat implements Runnable {
 
 		port++;
 	}
+	
+	synchronized public void setNick(Object nick) {
+		
+		this.nick = nick;
+		hashMapForNotify.put(nick, false);
+	}
+	
+	synchronized public void openWindow(Object nick) {
+		
+		hashMapForNotify.replace(nick, false, true);
+	}
 
 	synchronized public String getRemoteIP() {
 
@@ -104,6 +132,16 @@ public class ServerForPrivateChat implements Runnable {
 	synchronized public int getServerPort() {
 
 		return port;
+	}
+
+//	synchronized public PrivateChatWindow getPrivateChatWindow(int i) {
+//
+//		return listOfPrivateChatWindows.get(i);
+//	}
+	
+	synchronized public void wakeUp() {
+		
+		notifyAll();
 	}
 
 }

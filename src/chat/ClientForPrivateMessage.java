@@ -7,19 +7,22 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ClientForPrivateMessage implements Runnable {
-
-	private int myServerPort = 5777;
+	
 	private int remotePort;
+	private int myServerPort;
 	
 	private String addressForConnection;
 	private PanelForReceivedAndSend panelForReceivedAndSend;
 	private ClientOfChat clientOfChat;
 	private Server server;
+	private Object name;
 
-	public ClientForPrivateMessage(String addressForConnection, PanelForReceivedAndSend panelForReceivedAndSend) {
+	public ClientForPrivateMessage(String addressForConnection, PanelForReceivedAndSend panelForReceivedAndSend, int myServerPort, Object name) {
 		
 		this.addressForConnection = addressForConnection;
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
+		this.myServerPort = myServerPort;
+		this.name = name;
 
 		try {
 			Socket socket = new Socket(addressForConnection, 5111);
@@ -45,7 +48,7 @@ public class ClientForPrivateMessage implements Runnable {
 			socket.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
@@ -59,9 +62,7 @@ public class ClientForPrivateMessage implements Runnable {
 	public void run() {
 		
 		PrivateChatWindow privateChatWindow = new PrivateChatWindow(addressForConnection, getRemotePort(),
-				panelForReceivedAndSend, clientOfChat, server, myServerPort);
-		
-		myServerPort++;
+				panelForReceivedAndSend, clientOfChat, server, myServerPort, name);
 		
 	}
 
