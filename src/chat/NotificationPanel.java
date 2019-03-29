@@ -18,7 +18,7 @@ public class NotificationPanel extends JPanel implements MouseListener {
 	private JTable table;
 	private ServerForPrivateChat serverForPrivateChat;
 
-	public NotificationPanel(ServerForPrivateChat serverForPrivateChat) {
+	public NotificationPanel() {
 
 		setLayout(null);
 
@@ -26,11 +26,8 @@ public class NotificationPanel extends JPanel implements MouseListener {
 		borderForButtons.setTitleJustification(TitledBorder.CENTER);
 		setBorder(borderForButtons);
 
-		this.serverForPrivateChat = serverForPrivateChat;
-		
-
 		tableModel = new DefaultTableModel() {
-			
+
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				// TODO Auto-generated method stub
@@ -39,7 +36,7 @@ public class NotificationPanel extends JPanel implements MouseListener {
 		};
 		tableModel.addColumn("Przychodz¹ce powiadomienia");
 
-		table = new JTable(tableModel);		
+		table = new JTable(tableModel);
 		table.setTableHeader(null);
 		table.setShowGrid(false);
 		table.setRowHeight(40);
@@ -52,43 +49,48 @@ public class NotificationPanel extends JPanel implements MouseListener {
 		add(scrollPane);
 
 	}
-	
+
 	synchronized public void setNotification(Object o) {
-		
+
 		Object[] object = { o };
-		
+
 		tableModel.addRow(object);
+	}
+
+	synchronized public void setPrivateServer(ServerForPrivateChat serverForPrivateChat) {
+
+		this.serverForPrivateChat = serverForPrivateChat;
 	}
 
 	@Override
 	synchronized public void mouseClicked(MouseEvent e) {
-		
+
 		serverForPrivateChat.openWindow(table.getValueAt(table.getSelectedRow(), 0));
-		tableModel.removeRow(table.getSelectedRow());		
-		serverForPrivateChat.wakeUp();		
+		tableModel.removeRow(table.getSelectedRow());
+		serverForPrivateChat.wakeUp();
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

@@ -18,9 +18,13 @@ public class ServerForPrivateChat implements Runnable {
 	private String remoteIP;
 	private Thread thread;
 	private HashMap<Object, Boolean> hashMapForNotify = new HashMap<>();
-	private Object nick;
+	private HashMap<String, Integer> checkPrivatePortOfWindowServer = new HashMap<>();
+	private NotificationPanel notificationPanel;
+	private PanelForClients panelForClients;
 
-	public ServerForPrivateChat() {
+	public ServerForPrivateChat(NotificationPanel notificationPanel) {
+
+		this.notificationPanel = notificationPanel;
 
 		try {
 			serverSocket = new ServerSocket(5111);
@@ -39,17 +43,20 @@ public class ServerForPrivateChat implements Runnable {
 		Socket socket = new Socket();
 		String addressForConnection;
 		int port = getServerPort();
+		setIncreasePort();
 		int remotePort;
-		
 
 		try {
 			socket = serverSocket.accept();
-			
-			Object nick = this.nick;
-			
+
 			runNewThread();
 
 			InetAddress remoteAdress = socket.getInetAddress();
+
+			Object nick;
+
+			nick = panelForClients.getNickFromPanel(remoteAdress.getHostAddress());
+			setNick(nick);
 
 			InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -58,37 +65,41 @@ public class ServerForPrivateChat implements Runnable {
 
 			remotePort = Integer.parseInt(bufferedReader.readLine());
 
-			PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-			printWriter.println(port);
-			printWriter.flush();
+			if (getPortForPrivateWindow(addressForConnection) != null) {
 
-			PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
-			panelForReceivedAndSend.setTextInWindowChat("serwer\n");
+				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+				printWriter.println(getPortForPrivateWindow(addressForConnection));
+				printWriter.flush();
+			} else {
 
-			ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
-			Server server = new Server(panelForReceivedAndSend, clientOfChat, getServerPort());
-			
-			setIncreasePort();
-			
-			synchronized (this) {				
-				
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+				printWriter.println(port);
+				printWriter.flush();
+
+				PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
+
+				ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
+				Server server = new Server(panelForReceivedAndSend, clientOfChat, port);
+
+				notificationPanel.setNotification(nick);
+
+				synchronized (this) {
+
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-			}
-			
-			System.out.println(hashMapForNotify.get(nick));
-			if(hashMapForNotify.get(nick)) {
-				System.out.println(hashMapForNotify.get(nick));
-				PrivateChatWindow privateWindow = new PrivateChatWindow(addressForConnection, remotePort, panelForReceivedAndSend, clientOfChat, server, port, nick);
-			}
-			
-			
 
-			
+				if (hashMapForNotify.get(nick)) {
+
+					PrivateChatWindow privateWindow = new PrivateChatWindow(addressForConnection, remotePort,
+							panelForReceivedAndSend, clientOfChat, server, port, nick);
+				}
+
+			}
 
 		} catch (IOException e) {
 
@@ -103,6 +114,11 @@ public class ServerForPrivateChat implements Runnable {
 		thread.start();
 	}
 
+	synchronized public void setIPAndPortForCheck(String ip, Integer port) {
+
+		checkPrivatePortOfWindowServer.put(ip, port);
+	}
+
 	synchronized public void setRemoteIP(InetAddress ip) {
 
 		remoteIP = ip.getHostAddress();
@@ -112,16 +128,25 @@ public class ServerForPrivateChat implements Runnable {
 
 		port++;
 	}
-	
+
 	synchronized public void setNick(Object nick) {
-		
-		this.nick = nick;
+
 		hashMapForNotify.put(nick, false);
 	}
-	
+
+	public void setPanelForClient(PanelForClients panelForClients) {
+
+		this.panelForClients = panelForClients;
+	}
+
 	synchronized public void openWindow(Object nick) {
-		
+
 		hashMapForNotify.replace(nick, false, true);
+	}
+
+	synchronized public Integer getPortForPrivateWindow(String ip) {
+
+		return checkPrivatePortOfWindowServer.get(ip);
 	}
 
 	synchronized public String getRemoteIP() {
@@ -138,9 +163,9 @@ public class ServerForPrivateChat implements Runnable {
 //
 //		return listOfPrivateChatWindows.get(i);
 //	}
-	
+
 	synchronized public void wakeUp() {
-		
+
 		notifyAll();
 	}
 

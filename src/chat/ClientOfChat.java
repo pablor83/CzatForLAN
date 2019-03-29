@@ -31,7 +31,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 	private boolean runThisThread = false;
 	private boolean isReceivingTime = false;
 	private boolean close = false;
-	
+
 	public ClientOfChat(PanelForReceivedAndSend panelForReceivedAndSend) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
@@ -49,48 +49,49 @@ public class ClientOfChat implements Runnable, KeyListener {
 			localIPtoConnect = InetAddress.getLocalHost();
 			runNewThreadOfClient(localIPtoConnect.getHostAddress(), port);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	@Override
 	public void run() {
-		
+
 		String tName = thread.getName();
 		Socket socket = new Socket();
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(getIPToConnect(), getPort());
-		
+		System.out.println(inetSocketAddress);
 		String theIPThatThisThreadCoonectTo = null;
 		try {
 			socket.connect(inetSocketAddress);
 			theLastIPConnection = getIPToConnect();
 			InetAddress ipRemote = socket.getInetAddress();
 			theIPThatThisThreadCoonectTo = ipRemote.getHostAddress();
-
+			
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
 		while (true) {
-			
+
 			try {
-				
-				if(getStatusOfClosingOption()) {
-					socket.close();
-					break;
-				}
 
 				synchronized (this) {
 					if (!runThisThread) {
 
 						wait();
 					}
+				}
+
+				if (getStatusOfClosingOption()) {
+					
+					socket.close();
+					break;
 				}
 
 				if (getIPToDisconnect(theIPThatThisThreadCoonectTo)) {
@@ -109,18 +110,26 @@ public class ClientOfChat implements Runnable, KeyListener {
 					sendMessage.flush();
 
 				}
+				
+				
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			}
 
 			setSnoozeThreads();
 		}
-		System.out.println("CLIENT END");
+
+//		try {
+//			socket.close();
+//		} catch (IOException e) {
+//
+//			e.printStackTrace();
+//		}
 	}
 
 	synchronized public void runNewThreadOfClient(String ipToConnect) {
@@ -133,7 +142,6 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 	synchronized public void runNewThreadOfClient(String ipToConnect, int port) {
 
-		
 		thread = new Thread(this);
 		this.ipToConnect = ipToConnect;
 		this.port = port;
@@ -165,14 +173,14 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		this.isReceivingTime = isReceivingTime;
 	}
-	
+
 	synchronized public void closeThread(boolean b) {
-		
+
 		close = b;
 	}
-	
+
 	synchronized public boolean getStatusOfClosingOption() {
-		
+
 		return close;
 	}
 
@@ -213,25 +221,24 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		return isReceivingTime;
 	}
-	
+
 	synchronized public String getIPToConnect() {
-		
+
 		return ipToConnect;
 	}
-	
+
 	synchronized public int getPort() {
-		
+
 		return port;
 	}
-	
+
 	synchronized public Thread getThread() {
-		
+
 		return thread;
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
 
 	}
 

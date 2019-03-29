@@ -14,6 +14,9 @@ import javax.swing.JMenuBar;
 
 public class WindowOfChat extends JFrame {
 
+	private NotificationPanel notificationPanel = new NotificationPanel();
+	private ServerForPrivateChat serverForPrivateChat = new ServerForPrivateChat(notificationPanel);
+	
 	private WindowOfChat() {
 
 		setMinimumSize(new Dimension(970, 570));
@@ -23,11 +26,10 @@ public class WindowOfChat extends JFrame {
 		setLayout(new GridBagLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 				
-		PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
-		ServerForPrivateChat serverForPrivateChat = new ServerForPrivateChat();
-		NotificationPanel notificationPanel = new NotificationPanel(serverForPrivateChat);
+		PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();		
+		notificationPanel.setPrivateServer(serverForPrivateChat);		
 		PanelForClients panelForClients = new PanelForClients(panelForReceivedAndSend, notificationPanel, serverForPrivateChat);
-		
+		serverForPrivateChat.setPanelForClient(panelForClients);
 
 		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend, 4999);
 		Server server = new Server(panelForReceivedAndSend, clientOfChat, panelForClients, 4999);

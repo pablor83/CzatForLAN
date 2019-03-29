@@ -23,7 +23,7 @@ public class ClientForPrivateMessage implements Runnable {
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.myServerPort = myServerPort;
 		this.name = name;
-
+		
 		try {
 			Socket socket = new Socket(addressForConnection, 5111);
 
@@ -33,16 +33,14 @@ public class ClientForPrivateMessage implements Runnable {
 			PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 			printWriter.println(myServerPort);
 			printWriter.flush();
-
+			
 			InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-			remotePort = Integer.parseInt(bufferedReader.readLine());
-
-			Thread thread = new Thread(this);
-			thread.start();
-
 			
+			remotePort = Integer.parseInt(bufferedReader.readLine());
+			
+			Thread thread = new Thread(this);
+			thread.start();			
 			
 			bufferedReader.close();
 			socket.close();

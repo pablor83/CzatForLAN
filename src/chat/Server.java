@@ -16,6 +16,7 @@ public class Server implements Runnable {
 	private PanelForReceivedAndSend panelForReceivedAndSend;
 	private ClientOfChat clientOfChat;
 	private PanelForClients panelForClients;
+	private PrivateChatWindow privateChatWindow;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy'r.' HH:mm:ss");
 
@@ -73,93 +74,89 @@ public class Server implements Runnable {
 
 	@Override
 	public void run() {
-		
+
 		Socket socket = new Socket();
 		InetAddress remoteIPAddress = null;
 		InetAddress localIP;
 		String name;
-//		int numberClientOnList = 0;
-		
+
 		try {
 			socket = servSocket.accept();
 
 			localIP = InetAddress.getLocalHost();
 			remoteIPAddress = socket.getInetAddress();
 
-//			String ipRemote = remoteIPAddress.getHostAddress();
-//			System.out.println("PORT "+port);
 			if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
 					&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
 				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
 			}
 
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
 
 		name = remoteIPAddress.getHostName();
-		
-		if(panelForClients != null) {
-			
-//			numberClientOnList = panelForClients.getNumberOfClient();
+
+		if (panelForClients != null) {
 
 			panelForClients.addNameOfClient(name);
 			panelForClients.addIPToList(remoteIPAddress.getHostAddress());
-//			panelForClients.setNextNumberOfClient();			
 		}
-		
 
 		date = new Date();
 		panelForReceivedAndSend
 				.setTextInWindowChat(name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 
-		if(panelForClients != null) {
-			
-			startNewServer();
-		}
-		
-		else if(getNumberOfPrivateServers()>0) {
-			
-			setDecreasePrivateServer();			
-			startNewServer();
-		}
-		
-		
+		if (panelForClients != null) {
 
+			startNewServer();
+		}
+
+		else if (getNumberOfPrivateServers() > 0) {
+
+//			setDecreasePrivateServer();
+			startNewServer();
+		}
+//		startNewServer();
 		while (true) {
 
 			try {
+
 				InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 				BufferedReader bufferedStream = new BufferedReader(inputStreamReader);
 
 				String text = bufferedStream.readLine();
-				
-				if(getStatusOfCloseServerOption()) {
-					
-					socket.close();
-					servSocket.close();
-					break;
+
+				synchronized (this) {
+
+					if (getStatusOfCloseServerOption() || text == null) {
+
+						panelForReceivedAndSend.setTextInWindowChat(
+								name + "> " + "Zamkn¹³ okno" + "\n" + simpleDateFormat.format(date) + "\n\n");
+
+						socket.close();
+//						servSocket.close();
+
+						break;
+					}
+
 				}
-				
-				if (getSendMessage() && text.matches("/nick .+")) {
+				if (!getStatusOfCloseServerOption() && getSendMessage() && text != null && text.matches("/nick .+")) {
 					String nameBeforeChange = name;
-					
-					
 
 					name = text.substring(6);
 
 					date = new Date();
 					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieni³ nick na "
 							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
-					if(panelForClients != null) {
-						
+					if (panelForClients != null) {
+
 						int numberOfCell = panelForClients.getTheTablePosition(nameBeforeChange);
 						panelForClients.changeValueOfCell(name, numberOfCell, 0);
 					}
-					
 
-				} else if (getSendMessage()) {
+				} else if (!getStatusOfCloseServerOption() && getSendMessage()) {
 
 					if (!clientOfChat.getIsReceivingTime()) {
 
@@ -179,16 +176,15 @@ public class Server implements Runnable {
 				setSendMessage(true);
 
 			} catch (IOException e) {
-				
+
 //				e.printStackTrace();
-				
-				if(panelForClients != null) {
+
+				if (panelForClients != null) {
 					int numberOfCell = panelForClients.getTheTablePosition(name);
 					panelForClients.removeClientPanelList(panelForClients.getTheTablePosition(name));
 					panelForClients.removeIPFromList(panelForClients.getTheTablePosition(name));
 				}
-				
-//				panelForClients.setDecreaseClientNumber();
+
 				panelForReceivedAndSend.setTextInWindowChat(
 						name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 				clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
@@ -197,14 +193,13 @@ public class Server implements Runnable {
 				try {
 					socket.close();
 				} catch (IOException e1) {
-					
+
 					e1.printStackTrace();
 				}
 				break;
 			}
 
 		}
-
 	}
 
 	synchronized public void setSendMessage(boolean sendMessage) {
@@ -212,18 +207,18 @@ public class Server implements Runnable {
 		this.sendMessage = sendMessage;
 	}
 
-	synchronized public void setCloseServer(boolean b) {
+	public void setCloseServer(boolean b) {
 
 		closeServer = b;
 	}
-	
+
 	synchronized public void setPrivateServer(boolean b) {
-		
+
 		privateServer = b;
 	}
-	
+
 	synchronized public void setDecreasePrivateServer() {
-		
+
 		countdownForPrivateServer--;
 	}
 
@@ -231,19 +226,19 @@ public class Server implements Runnable {
 
 		return sendMessage;
 	}
-	
-	synchronized public boolean getStatusOfCloseServerOption() {
-		
+
+	public boolean getStatusOfCloseServerOption() {
+
 		return closeServer;
 	}
-	
+
 	synchronized public boolean getStatusOfPrivateServer() {
-		
+
 		return privateServer;
 	}
-	
+
 	synchronized public int getNumberOfPrivateServers() {
-		
+
 		return countdownForPrivateServer;
 	}
 

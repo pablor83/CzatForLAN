@@ -93,16 +93,6 @@ public class PanelForClients extends JPanel implements MouseListener {
 		myServerPort++;
 	}
 
-//	synchronized public void setNextNumberOfClient() {
-//
-//		numberOfClient++;
-//	}
-//
-//	synchronized public void setDecreaseClientNumber() {
-//
-//		numberOfClient--;
-//	}
-
 	synchronized public void removeClientPanelList(int i) {
 
 		tableModel.removeRow(i);
@@ -122,11 +112,6 @@ public class PanelForClients extends JPanel implements MouseListener {
 
 		return listOfIPAddresses.get(i);
 	}
-
-//	synchronized public int getNumberOfClient() {
-//
-//		return numberOfClient;
-//	}
 
 	synchronized public int getTheTablePosition(Object obj) {
 
@@ -151,7 +136,7 @@ public class PanelForClients extends JPanel implements MouseListener {
 	}
 
 	synchronized public void checkPrivateServerPortAndPrivateClientPort() {
-
+		
 		while (true) {
 
 			if (getMyPrivateClientServerPort() == serverForPrivateChat.getServerPort()) {
@@ -163,8 +148,25 @@ public class PanelForClients extends JPanel implements MouseListener {
 
 	}
 
+	public Object getNickFromPanel(String ip) {
+
+		int i = 0;
+
+		for (String ipAddress : listOfIPAddresses) {
+
+			if (ipAddress.equals(ip)) {
+
+				break;
+			}
+
+			i++;
+		}
+
+		return table.getValueAt(i, 0);
+	}
+
 	@Override
-	synchronized public void mouseClicked(MouseEvent e) {
+	public void mouseClicked(MouseEvent e) {
 
 		if (e.getClickCount() == 2) {
 
@@ -176,14 +178,14 @@ public class PanelForClients extends JPanel implements MouseListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
-			serverForPrivateChat.setNick(table.getValueAt(table.getSelectedRow(), 0));
+			String addressForConnection = listOfIPAddresses.get(table.getSelectedRow());
 			PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
-			ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(
-					listOfIPAddresses.get(table.getSelectedRow()), panelForReceivedAndSend, myServerPort,
-					tableModel.getValueAt(table.getSelectedRow(), 0));
 			
-			notificationPanel.setNotification(table.getValueAt(table.getSelectedColumn(), 0));
+			
+			
+			ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection, panelForReceivedAndSend, myServerPort,
+					tableModel.getValueAt(table.getSelectedRow(), 0));
+			serverForPrivateChat.setIPAndPortForCheck(addressForConnection, myServerPort);
 			myServerPort++;
 		}
 	}
