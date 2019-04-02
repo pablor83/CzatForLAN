@@ -61,7 +61,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 		String tName = thread.getName();
 		Socket socket = new Socket();
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(getIPToConnect(), getPort());
-		System.out.println(inetSocketAddress);
+		
 		String theIPThatThisThreadCoonectTo = null;
 		try {
 			socket.connect(inetSocketAddress);

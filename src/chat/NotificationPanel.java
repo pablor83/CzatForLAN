@@ -53,7 +53,7 @@ public class NotificationPanel extends JPanel implements MouseListener {
 	synchronized public void setNotification(Object o) {
 
 		Object[] object = { o };
-
+		
 		tableModel.addRow(object);
 	}
 

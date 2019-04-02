@@ -111,11 +111,8 @@ public class Server implements Runnable {
 		if (panelForClients != null) {
 
 			startNewServer();
-		}
+		} else {
 
-		else if (getNumberOfPrivateServers() > 0) {
-
-//			setDecreasePrivateServer();
 			startNewServer();
 		}
 //		startNewServer();

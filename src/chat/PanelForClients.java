@@ -136,7 +136,7 @@ public class PanelForClients extends JPanel implements MouseListener {
 	}
 
 	synchronized public void checkPrivateServerPortAndPrivateClientPort() {
-		
+
 		while (true) {
 
 			if (getMyPrivateClientServerPort() == serverForPrivateChat.getServerPort()) {
@@ -172,6 +172,7 @@ public class PanelForClients extends JPanel implements MouseListener {
 
 			checkPrivateServerPortAndPrivateClientPort();
 			InetAddress ip = null;
+			
 			try {
 				ip = InetAddress.getByName(listOfIPAddresses.get(table.getSelectedRow()));
 			} catch (UnknownHostException e1) {
@@ -180,13 +181,23 @@ public class PanelForClients extends JPanel implements MouseListener {
 			}
 			String addressForConnection = listOfIPAddresses.get(table.getSelectedRow());
 			PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
-			
-			
-			
-			ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection, panelForReceivedAndSend, myServerPort,
-					tableModel.getValueAt(table.getSelectedRow(), 0));
-			serverForPrivateChat.setIPAndPortForCheck(addressForConnection, myServerPort);
-			myServerPort++;
+
+			if (serverForPrivateChat.getPortForPrivateWindow(addressForConnection) == null) {				
+				
+				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
+						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), 5111);
+				
+				serverForPrivateChat.setIPAndPortForCheck(addressForConnection, clientForPrivateMessage.getRemotePort());
+				
+				myServerPort++;
+				
+			} else {
+					
+				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
+						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), serverForPrivateChat.getPortForPrivateWindow(addressForConnection));
+				
+			}
+
 		}
 	}
 

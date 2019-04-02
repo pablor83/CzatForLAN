@@ -70,8 +70,10 @@ public class ServerForPrivateChat implements Runnable {
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 				printWriter.println(getPortForPrivateWindow(addressForConnection));
 				printWriter.flush();
+				
 			} else {
 
+				setIPAndPortForCheck(addressForConnection, remotePort);
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 				printWriter.println(port);
 				printWriter.flush();
@@ -88,7 +90,7 @@ public class ServerForPrivateChat implements Runnable {
 					try {
 						wait();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 				}
