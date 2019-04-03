@@ -185,7 +185,7 @@ public class PanelForClients extends JPanel implements MouseListener {
 			if (serverForPrivateChat.getPortForPrivateWindow(addressForConnection) == null) {				
 				
 				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
-						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), 5111);
+						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), 5111, serverForPrivateChat, false);
 				
 				serverForPrivateChat.setIPAndPortForCheck(addressForConnection, clientForPrivateMessage.getRemotePort());
 				
@@ -194,8 +194,8 @@ public class PanelForClients extends JPanel implements MouseListener {
 			} else {
 					
 				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
-						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), serverForPrivateChat.getPortForPrivateWindow(addressForConnection));
-				
+						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), serverForPrivateChat.getPortForPrivateWindow(addressForConnection), serverForPrivateChat, true);
+				myServerPort++;
 			}
 
 		}

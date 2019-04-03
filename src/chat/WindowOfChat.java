@@ -30,7 +30,7 @@ public class WindowOfChat extends JFrame {
 		notificationPanel.setPrivateServer(serverForPrivateChat);		
 		PanelForClients panelForClients = new PanelForClients(panelForReceivedAndSend, notificationPanel, serverForPrivateChat);
 		serverForPrivateChat.setPanelForClient(panelForClients);
-
+		
 		ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend, 4999);
 		Server server = new Server(panelForReceivedAndSend, clientOfChat, panelForClients, 4999);
 		ServerUDP serverUDP = new ServerUDP(clientOfChat);

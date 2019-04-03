@@ -10,6 +10,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.management.ObjectInstance;
+
 public class ServerForPrivateChat implements Runnable {
 
 	private int port = 5332;
@@ -39,9 +41,11 @@ public class ServerForPrivateChat implements Runnable {
 
 	@Override
 	public void run() {
-
+		
 		Socket socket = new Socket();
 		String addressForConnection;
+		ClientOfChat clientOfChat = null;
+		PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
 		int port = getServerPort();
 		setIncreasePort();
 		int remotePort;
@@ -66,11 +70,11 @@ public class ServerForPrivateChat implements Runnable {
 			remotePort = Integer.parseInt(bufferedReader.readLine());
 
 			if (getPortForPrivateWindow(addressForConnection) != null) {
-
+				
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 				printWriter.println(getPortForPrivateWindow(addressForConnection));
 				printWriter.flush();
-				
+
 			} else {
 
 				setIPAndPortForCheck(addressForConnection, remotePort);
@@ -78,9 +82,9 @@ public class ServerForPrivateChat implements Runnable {
 				printWriter.println(port);
 				printWriter.flush();
 
-				PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
+				panelForReceivedAndSend = new PanelForReceivedAndSend();
 
-				ClientOfChat clientOfChat = new ClientOfChat(panelForReceivedAndSend);
+				clientOfChat = new ClientOfChat(panelForReceivedAndSend);				
 				Server server = new Server(panelForReceivedAndSend, clientOfChat, port);
 
 				notificationPanel.setNotification(nick);
@@ -90,7 +94,7 @@ public class ServerForPrivateChat implements Runnable {
 					try {
 						wait();
 					} catch (InterruptedException e) {
-						
+
 						e.printStackTrace();
 					}
 				}
@@ -98,7 +102,7 @@ public class ServerForPrivateChat implements Runnable {
 				if (hashMapForNotify.get(nick)) {
 
 					PrivateChatWindow privateWindow = new PrivateChatWindow(addressForConnection, remotePort,
-							panelForReceivedAndSend, clientOfChat, server, port, nick);
+							panelForReceivedAndSend, clientOfChat, server, port, nick, ServerForPrivateChat.this);
 				}
 
 			}
@@ -144,6 +148,11 @@ public class ServerForPrivateChat implements Runnable {
 	synchronized public void openWindow(Object nick) {
 
 		hashMapForNotify.replace(nick, false, true);
+	}
+	
+	synchronized public void removePortFromHashMap(String ip) {
+		
+		checkPrivatePortOfWindowServer.remove(ip, checkPrivatePortOfWindowServer.get(ip));
 	}
 
 	synchronized public Integer getPortForPrivateWindow(String ip) {

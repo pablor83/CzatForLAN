@@ -16,16 +16,16 @@ public class PrivateChatWindow extends JFrame {
 
 	public PrivateChatWindow(String ipForClientConnection, int portForClientConection,
 			PanelForReceivedAndSend panelForReceiveAndSend, ClientOfChat privateClientOfChat, Server privateServer,
-			int myPort, Object name) {
-		
-		this.name = name;
-		
+			int myPort, Object name, ServerForPrivateChat serverForPrivateChat) {
+
+		this.name = name;;
+
 		setTitle("Prywatna rozmowa z " + this.name);
 		setMinimumSize(new Dimension(600, 600));
 		setLocationRelativeTo(null);
 //		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setVisible(true);
-		
+
 		InetAddress myIP = null;
 
 		try {
@@ -37,6 +37,8 @@ public class PrivateChatWindow extends JFrame {
 
 		clientOfChat = privateClientOfChat;
 		server = privateServer;
+
+		clientOfChat.setMyLocalServerPort(myPort);
 		
 		privateClientOfChat.runNewThreadOfClient(myIP.getHostAddress(), myPort);
 
@@ -52,11 +54,14 @@ public class PrivateChatWindow extends JFrame {
 		addWindowListener(new WindowAdapter() {
 
 			public void windowClosing(WindowEvent windowEvent) {
-								
+
 				clientOfChat.closeThread(true);
 				clientOfChat.setThreadsAsActive();
-				server.setCloseServer(true);
+				if(server.getNumberOfPrivateServerThreads()==1)
+					serverForPrivateChat.removePortFromHashMap(ipForClientConnection);
 				
+				server.setCloseServer(true);				
+
 				dispose();
 
 			}
@@ -66,5 +71,4 @@ public class PrivateChatWindow extends JFrame {
 		pack();
 		setLayout(null);
 	}
-
 }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -16,7 +17,6 @@ public class Server implements Runnable {
 	private PanelForReceivedAndSend panelForReceivedAndSend;
 	private ClientOfChat clientOfChat;
 	private PanelForClients panelForClients;
-	private PrivateChatWindow privateChatWindow;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy'r.' HH:mm:ss");
 
@@ -28,13 +28,13 @@ public class Server implements Runnable {
 	private boolean privateServer = false;
 
 	private int port;
-	private int countdownForPrivateServer = 1;
+	private int numberOfPrivateServerThreads = 0;
 
 	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, int port) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.clientOfChat = clientOfChat;
-
+		System.out.println("Server port "+port);
 		try {
 			servSocket = new ServerSocket(port);
 		} catch (IOException e) {
@@ -53,7 +53,7 @@ public class Server implements Runnable {
 		this.clientOfChat = clientOfChat;
 		this.panelForClients = panelForClients;
 		this.port = port;
-
+		
 		try {
 			servSocket = new ServerSocket(port);
 		} catch (IOException e) {
@@ -74,7 +74,7 @@ public class Server implements Runnable {
 
 	@Override
 	public void run() {
-
+		
 		Socket socket = new Socket();
 		InetAddress remoteIPAddress = null;
 		InetAddress localIP;
@@ -83,12 +83,25 @@ public class Server implements Runnable {
 		try {
 			socket = servSocket.accept();
 
+			setIncreaseNumberOfPrivateServerThreads();			
+			
 			localIP = InetAddress.getLocalHost();
 			remoteIPAddress = socket.getInetAddress();
 
 			if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
 					&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
 				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
+			}
+			
+			if(panelForClients == null && getNumberOfPrivateServerThreads() > 2) {
+				
+				InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
+				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+				int port = Integer.parseInt(bufferedReader.readLine());
+				
+				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), port);
+//				bufferedReader.close();
+//				inputStreamReader.close();
 			}
 
 		} catch (IOException e) {
@@ -127,14 +140,20 @@ public class Server implements Runnable {
 
 				synchronized (this) {
 
-					if (getStatusOfCloseServerOption() || text == null) {
+					if (text == null) {
 
 						panelForReceivedAndSend.setTextInWindowChat(
 								name + "> " + "Zamkn¹³ okno" + "\n" + simpleDateFormat.format(date) + "\n\n");
-
+//						setDecreaseNumberOfPrivateServerThreads();
+						clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
+						socket.close();
+						
+						break;
+					} else if(getStatusOfCloseServerOption()) {
+																		
 						socket.close();
 //						servSocket.close();
-
+						
 						break;
 					}
 
@@ -214,11 +233,16 @@ public class Server implements Runnable {
 		privateServer = b;
 	}
 
-	synchronized public void setDecreasePrivateServer() {
+	synchronized public void setDecreaseNumberOfPrivateServerThreads() {
 
-		countdownForPrivateServer--;
+		numberOfPrivateServerThreads--;
 	}
+	
+	synchronized public void setIncreaseNumberOfPrivateServerThreads() {
 
+		numberOfPrivateServerThreads++;
+	}
+	
 	synchronized public boolean getSendMessage() {
 
 		return sendMessage;
@@ -234,9 +258,9 @@ public class Server implements Runnable {
 		return privateServer;
 	}
 
-	synchronized public int getNumberOfPrivateServers() {
+	synchronized public int getNumberOfPrivateServerThreads() {
 
-		return countdownForPrivateServer;
+		return numberOfPrivateServerThreads;
 	}
 
 }
