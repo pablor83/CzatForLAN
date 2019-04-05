@@ -45,15 +45,17 @@ public class ServerForPrivateChat implements Runnable {
 		Socket socket = new Socket();
 		String addressForConnection;
 		ClientOfChat clientOfChat = null;
-		PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
+		PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();		
 		int port = getServerPort();
 		setIncreasePort();
 		int remotePort;
 
 		try {
 			socket = serverSocket.accept();
-
+			
 			runNewThread();
+			
+			InetAddress localHostIP = InetAddress.getLocalHost();
 
 			InetAddress remoteAdress = socket.getInetAddress();
 
@@ -69,22 +71,23 @@ public class ServerForPrivateChat implements Runnable {
 
 			remotePort = Integer.parseInt(bufferedReader.readLine());
 
-			if (getPortForPrivateWindow(addressForConnection) != null) {
+			if (getPortForPrivateWindow(addressForConnection) != null && localHostIP.getHostAddress().equals(remoteAdress.getHostAddress())) {
 				
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-				printWriter.println(getPortForPrivateWindow(addressForConnection));
+				printWriter.println(getPortForPrivateWindow(addressForConnection)); System.out.println("ServerPort addr "+getPortForPrivateWindow(addressForConnection));
 				printWriter.flush();
 
 			} else {
 
 				setIPAndPortForCheck(addressForConnection, remotePort);
-				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+				PrintWriter printWriter = new PrintWriter(socket.getOutputStream()); System.out.println("ServerPort "+port);
 				printWriter.println(port);
 				printWriter.flush();
 
 				panelForReceivedAndSend = new PanelForReceivedAndSend();
 
-				clientOfChat = new ClientOfChat(panelForReceivedAndSend);				
+				clientOfChat = new ClientOfChat(panelForReceivedAndSend);
+				clientOfChat.setServerForPrivateChat(ServerForPrivateChat.this);
 				Server server = new Server(panelForReceivedAndSend, clientOfChat, port);
 
 				notificationPanel.setNotification(nick);
@@ -122,7 +125,15 @@ public class ServerForPrivateChat implements Runnable {
 
 	synchronized public void setIPAndPortForCheck(String ip, Integer port) {
 
-		checkPrivatePortOfWindowServer.put(ip, port);
+		if(getPortForPrivateWindow(ip) != null) {
+			
+			checkPrivatePortOfWindowServer.replace(ip, port);
+			
+		} else {
+			
+			checkPrivatePortOfWindowServer.put(ip, port);
+		}
+		
 	}
 
 	synchronized public void setRemoteIP(InetAddress ip) {

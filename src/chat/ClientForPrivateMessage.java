@@ -42,7 +42,8 @@ public class ClientForPrivateMessage implements Runnable {
 
 				clientOfChat = new ClientOfChat(panelForReceivedAndSend);
 			}
-
+			clientOfChat.setMyLocalServerPort(myServerPort);
+			clientOfChat.setServerForPrivateChat(this.serverForPrivateChat);
 			server = new Server(panelForReceivedAndSend, clientOfChat, myServerPort);
 
 			if (this.remotePrivateServerPort == 5111) {
@@ -54,8 +55,8 @@ public class ClientForPrivateMessage implements Runnable {
 
 				InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-				remotePort = Integer.parseInt(bufferedReader.readLine());
+				
+				remotePort = Integer.parseInt(bufferedReader.readLine()); System.out.println("CP "+remotePort);
 
 				bufferedReader.close();
 				socket.close();

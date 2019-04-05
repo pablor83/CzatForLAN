@@ -175,6 +175,7 @@ public class PanelForClients extends JPanel implements MouseListener {
 			
 			try {
 				ip = InetAddress.getByName(listOfIPAddresses.get(table.getSelectedRow()));
+				
 			} catch (UnknownHostException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -189,15 +190,16 @@ public class PanelForClients extends JPanel implements MouseListener {
 				
 				serverForPrivateChat.setIPAndPortForCheck(addressForConnection, clientForPrivateMessage.getRemotePort());
 				
-				myServerPort++;
+				
 				
 			} else {
 					
 				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
 						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), serverForPrivateChat.getPortForPrivateWindow(addressForConnection), serverForPrivateChat, true);
-				myServerPort++;
+				
 			}
-
+			
+			myServerPort++;
 		}
 	}
 

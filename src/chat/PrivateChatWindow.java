@@ -60,6 +60,7 @@ public class PrivateChatWindow extends JFrame {
 				if(server.getNumberOfPrivateServerThreads()==1)
 					serverForPrivateChat.removePortFromHashMap(ipForClientConnection);
 				
+				
 				server.setCloseServer(true);				
 
 				dispose();

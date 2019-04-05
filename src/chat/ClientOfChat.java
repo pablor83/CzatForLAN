@@ -15,11 +15,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.print.attribute.standard.Severity;
 import javax.swing.plaf.metal.MetalBorders.Flush3DBorder;
 
 public class ClientOfChat implements Runnable, KeyListener {
 
 	private PanelForReceivedAndSend panelForReceivedAndSend;
+	private ServerForPrivateChat serverForPrivateChat = null;
 	private String textForSend = null;
 	private int port;
 	private int myLocalServerPort;
@@ -43,7 +45,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.panelForReceivedAndSend.getFieldOfSendMessage().addKeyListener(this);
 	}
-	
+
 	public ClientOfChat(PanelForReceivedAndSend panelForReceivedAndSend, boolean reconnect) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
@@ -70,51 +72,63 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 	@Override
 	public void run() {
-		
+		String t = thread.getName();
 		String tName = thread.getName();
 		Socket socket = new Socket();
 		String ipToConnect = this.ipToConnect;
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(ipToConnect, getPort());
-		
+		System.out.println(inetSocketAddress);
 		String theIPThatThisThreadCoonectTo = null;
 		InetAddress ipCheck = null;
 		
+		boolean startLoop = true;
+
 		try {
-			
-			ipCheck = InetAddress.getLocalHost();			
+
+			ipCheck = InetAddress.getLocalHost();
 		} catch (UnknownHostException e1) {
-			
+
 			e1.printStackTrace();
 		}
-		
-		try {
-			socket.connect(inetSocketAddress); 
+
+		try {		
 			
-			theLastIPConnection = getIPToConnect(); 
+			socket.connect(inetSocketAddress);
+			
+			theLastIPConnection = getIPToConnect();
 			InetAddress ipRemote = socket.getInetAddress();
-			theIPThatThisThreadCoonectTo = ipRemote.getHostAddress();			
+			theIPThatThisThreadCoonectTo = ipRemote.getHostAddress();
+			System.out.println(getReconnectStatus());
 			
-			if(!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostAddress()) && getReconnectStatus()) {
-				
+			if (!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostAddress())) {
+
+				serverForPrivateChat.setIPAndPortForCheck(ipToConnect, port);
+			}
+			
+			if (!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostAddress()) && getReconnectStatus()) {
+
 				sendMyServerPort(socket);
 			}
-			
-			
+
 		} catch (UnknownHostException e) {
-			System.out.println("UnknownHostException");
+						
 			e.printStackTrace();
+			
 		} catch (IOException e) {
-			
-			
-			if(!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostName())) {
-				System.out.println("IOException");
-				getRemotePortAndConnect(ipToConnect, socket);
-			}
-			
-			e.printStackTrace();
+				try {
+					socket.close();
+				} catch (IOException e1) {
+					
+					e1.printStackTrace();
+				}
+				socket = new Socket();
+				startLoop = false;
+				getRemotePortAndConnect(ipToConnect, socket);				
+
+//			e.printStackTrace();
 		}
 
-		while (true) {
+		while (startLoop) {
 
 			try {
 
@@ -126,7 +140,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 				}
 
 				if (getStatusOfClosingOption()) {
-					
+
 					socket.close();
 					break;
 				}
@@ -147,8 +161,6 @@ public class ClientOfChat implements Runnable, KeyListener {
 					sendMessage.flush();
 
 				}
-				
-				
 
 			} catch (IOException e) {
 
@@ -210,24 +222,29 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		this.isReceivingTime = isReceivingTime;
 	}
-	
-	public void setMyLocalServerPort (int myLocalServerPort) {
-		
+
+	public void setMyLocalServerPort(int myLocalServerPort) {
+
 		this.myLocalServerPort = myLocalServerPort;
 	}
-	
-	public void setReconnect (boolean b) {
-		
+
+	public void setReconnect(boolean b) {
+
 		reconnect = b;
+	}
+	
+	public void setServerForPrivateChat (ServerForPrivateChat serverForPrivateChat) {
+		
+		this.serverForPrivateChat = serverForPrivateChat;
 	}
 
 	synchronized public void closeThread(boolean b) {
 
 		close = b;
 	}
-	
+
 	synchronized public boolean getReconnectStatus() {
-		
+
 		return reconnect;
 	}
 
@@ -245,28 +262,33 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		listOfIPAddressesToDisconnect.remove(ip);
 	}
-	
+
 	public void getRemotePortAndConnect(String ip, Socket socket) {
-		
+
 		try {
-			
+
 			Socket socketForPrivateServer = new Socket(ip, 5111);
-			PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-			printWriter.println(port);
+			PrintWriter printWriter = new PrintWriter(socketForPrivateServer.getOutputStream());
+			printWriter.println(myLocalServerPort);
 			printWriter.flush();
-			
-			InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
+			System.out.println("Port "+myLocalServerPort);
+			InputStreamReader inputStreamReader = new InputStreamReader(socketForPrivateServer.getInputStream());
 			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-			InetSocketAddress inetSocketAddress = new InetSocketAddress(bufferedReader.readLine(), getPort());
+			int port = Integer.valueOf(bufferedReader.readLine());
 			
-			socket.connect(inetSocketAddress);
+			serverForPrivateChat.setIPAndPortForCheck(ip, port);
+			System.out.println(ip+" "+port);			
+			
+			runNewThreadOfClient(ip, port);
+			
+//			socket.connect(inetSocketAddress);
 			
 			bufferedReader.close();
 			inputStreamReader.close();
 			socketForPrivateServer.close();
-			
+
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
 	}
@@ -313,18 +335,20 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		return thread;
 	}
-	
-	synchronized public void sendMyServerPort(Socket socket) {		
-		
+
+	synchronized public void sendMyServerPort(Socket socket) {
+
 		try {
 			PrintWriter sendMessage = new PrintWriter(socket.getOutputStream());
-			sendMessage.println(myLocalServerPort); System.out.println("send my port "+myLocalServerPort);
+			sendMessage.println(myLocalServerPort);
+			System.out.println("send my port " + myLocalServerPort);
 			sendMessage.flush();
+						
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
