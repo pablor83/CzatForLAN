@@ -57,8 +57,10 @@ public class PrivateChatWindow extends JFrame {
 
 				clientOfChat.closeThread(true);
 				clientOfChat.setThreadsAsActive();
-				if(server.getNumberOfPrivateServerThreads()==1)
+				
+				if(server.getNumberOfThreads() == 1) {
 					serverForPrivateChat.removePortFromHashMap(ipForClientConnection);
+				}
 				
 				
 				server.setCloseServer(true);				

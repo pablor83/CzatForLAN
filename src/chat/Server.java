@@ -28,7 +28,8 @@ public class Server implements Runnable {
 	private boolean privateServer = false;
 
 	private int port;
-	private int numberOfPrivateServerThreads = 0;
+	private int counterOfConnections = 0;
+	private int numberOfThreads = 0;
 
 //	int  iT = 1;
 	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, int port) {
@@ -36,7 +37,7 @@ public class Server implements Runnable {
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.clientOfChat = clientOfChat;
 		this.port = port;
-		
+
 		try {
 			servSocket = new ServerSocket(this.port);
 		} catch (IOException e) {
@@ -76,45 +77,48 @@ public class Server implements Runnable {
 
 	@Override
 	public void run() {
-		String s = thread.getName(); Thread thread1 = thread;
+		String s = thread.getName();
+		Thread thread1 = thread;
 		Socket socket = new Socket();
 		InetAddress remoteIPAddress = null;
 		InetAddress localIP;
-		String name = null;;
-		setIncreaseNumberOfPrivateServerThreads();
+		String name = null;
 		
+
 		boolean startLoop = true;
-		
+
 		try {
-			socket = servSocket.accept();			
-			
+			socket = servSocket.accept();
+			setIncreaseNumberOfConnections();
 			localIP = InetAddress.getLocalHost();
 			remoteIPAddress = socket.getInetAddress();
-			
-			if(remoteIPAddress.getHostAddress().equals("127.0.0.1")) {
-								
+
+			if (remoteIPAddress.getHostAddress().equals("127.0.0.1")) {
+
 				startLoop = false;
 				socket.close();
 				servSocket.close();
-				
+
 			} else {
+				
+				setIncreaseNumberOfThreads();
 				
 				if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
 						&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
 					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
 				}
-
-				if (panelForClients == null && getNumberOfPrivateServerThreads() > 2) {
+				
+				if (panelForClients == null && getNumberOfConnections() > 2) {
 
 					InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 					int port = Integer.parseInt(bufferedReader.readLine());
-
+					
 					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), port);
 //					bufferedReader.close();
 //					inputStreamReader.close();
 				}
-				
+
 				name = remoteIPAddress.getHostName();
 
 				if (panelForClients != null) {
@@ -124,14 +128,14 @@ public class Server implements Runnable {
 				}
 
 				date = new Date();
-				panelForReceivedAndSend
-						.setTextInWindowChat(name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
+				panelForReceivedAndSend.setTextInWindowChat(
+						name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
 
 				if (panelForClients != null) {
 
 					startNewServer();
 
-				} else if (panelForClients == null && getNumberOfPrivateServerThreads() < 2) {
+				} else if (panelForClients == null && getNumberOfConnections() < 2) {
 
 					startNewServer();
 				}
@@ -143,8 +147,7 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 
-		
-		while (true) {
+		while (startLoop) {
 
 			try {
 
@@ -156,26 +159,26 @@ public class Server implements Runnable {
 				synchronized (this) {
 
 					if (text == null) {
-						
+
 						panelForReceivedAndSend.setTextInWindowChat(
 								name + "> " + "Zamkn¹³ okno" + "\n" + simpleDateFormat.format(date) + "\n\n");
-						setDecreaseNumberOfPrivateServerThreads();
+//						setDecreaseNumberOfConnections();
+						setDecreaseNumberOfThreads();
 						clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
 						socket.close();
 
 						if (!getStatusOfCloseServerOption()) {
-							setIncreaseNumberOfPrivateServerThreads();
+//							setIncreaseNumberOfConnections();
 							startNewServer();
 						}
-							
 
 						if (getStatusOfCloseServerOption()) {
-							
+
 							Socket socketToCloseSocket = new Socket("localhost", port);
 							bufferedStream.close();
 							inputStreamReader.close();
-							socket.close();						
-							servSocket.close();
+							socket.close();
+//							servSocket.close();
 						}
 
 						break;
@@ -233,14 +236,14 @@ public class Server implements Runnable {
 				try {
 					socket.close();
 				} catch (IOException e1) {
-					
+
 					e1.printStackTrace();
 				}
 				break;
 			}
 
 		}
-		
+
 	}
 
 	synchronized public void setSendMessage(boolean sendMessage) {
@@ -258,14 +261,24 @@ public class Server implements Runnable {
 		privateServer = b;
 	}
 
-	synchronized public void setDecreaseNumberOfPrivateServerThreads() {
+	synchronized public void setDecreaseNumberOfConnections() {
 
-		numberOfPrivateServerThreads--;
+		counterOfConnections--;
+	}
+	
+	synchronized public void setDecreaseNumberOfThreads() {
+
+		numberOfThreads--;
 	}
 
-	synchronized public void setIncreaseNumberOfPrivateServerThreads() {
+	synchronized public void setIncreaseNumberOfConnections() {
 
-		numberOfPrivateServerThreads++;
+		counterOfConnections++;
+	}
+	
+	synchronized public void setIncreaseNumberOfThreads() {
+
+		numberOfThreads++;
 	}
 
 	synchronized public boolean getSendMessage() {
@@ -283,9 +296,14 @@ public class Server implements Runnable {
 		return privateServer;
 	}
 
-	synchronized public int getNumberOfPrivateServerThreads() {
+	synchronized public int getNumberOfConnections() {
 
-		return numberOfPrivateServerThreads;
+		return counterOfConnections;
+	}
+	
+	synchronized public int getNumberOfThreads() {
+
+		return numberOfThreads;
 	}
 
 }

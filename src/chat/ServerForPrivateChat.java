@@ -47,7 +47,7 @@ public class ServerForPrivateChat implements Runnable {
 		ClientOfChat clientOfChat = null;
 		PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();		
 		int port = getServerPort();
-		setIncreasePort();
+//		setIncreasePort();
 		int remotePort;
 
 		try {
@@ -71,14 +71,14 @@ public class ServerForPrivateChat implements Runnable {
 
 			remotePort = Integer.parseInt(bufferedReader.readLine());
 
-			if (getPortForPrivateWindow(addressForConnection) != null && localHostIP.getHostAddress().equals(remoteAdress.getHostAddress())) {
+			if (localHostIP.getHostAddress().equals(remoteAdress.getHostAddress()) && getPortForPrivateWindow(addressForConnection) != null) {
 				
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 				printWriter.println(getPortForPrivateWindow(addressForConnection)); System.out.println("ServerPort addr "+getPortForPrivateWindow(addressForConnection));
 				printWriter.flush();
 
 			} else {
-
+				setIncreasePort();
 				setIPAndPortForCheck(addressForConnection, remotePort);
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream()); System.out.println("ServerPort "+port);
 				printWriter.println(port);
