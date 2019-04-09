@@ -172,10 +172,10 @@ public class PanelForClients extends JPanel implements MouseListener {
 
 			checkPrivateServerPortAndPrivateClientPort();
 			InetAddress ip = null;
-			
+
 			try {
 				ip = InetAddress.getByName(listOfIPAddresses.get(table.getSelectedRow()));
-				
+
 			} catch (UnknownHostException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -183,22 +183,26 @@ public class PanelForClients extends JPanel implements MouseListener {
 			String addressForConnection = listOfIPAddresses.get(table.getSelectedRow());
 			PanelForReceivedAndSend panelForReceivedAndSend = new PanelForReceivedAndSend();
 
-			if (serverForPrivateChat.getPortForPrivateWindow(addressForConnection) == null) {				
-				
-				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
-						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), 5111, serverForPrivateChat, false);
-				
-				serverForPrivateChat.setIPAndPortForCheck(addressForConnection, clientForPrivateMessage.getRemotePort());
-				
-				
-				
-			} else {
-					
-				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
-						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), serverForPrivateChat.getPortForPrivateWindow(addressForConnection), serverForPrivateChat, true);
-				
-			}
-			
+			ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
+					panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), 5111,
+					serverForPrivateChat, false);
+
+//			if (serverForPrivateChat.getPortForPrivateWindow(addressForConnection) == null) {				
+//				
+//				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
+//						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), 5111, serverForPrivateChat, false);
+//				
+//				serverForPrivateChat.setIPAndPortForCheck(addressForConnection, clientForPrivateMessage.getRemotePort());
+//				
+//				
+//				
+//			} else {
+//					
+//				ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
+//						panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), serverForPrivateChat.getPortForPrivateWindow(addressForConnection), serverForPrivateChat, true);
+//				
+//			}
+
 			myServerPort++;
 		}
 	}

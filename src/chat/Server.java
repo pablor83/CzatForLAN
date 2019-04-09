@@ -17,6 +17,7 @@ public class Server implements Runnable {
 	private PanelForReceivedAndSend panelForReceivedAndSend;
 	private ClientOfChat clientOfChat;
 	private PanelForClients panelForClients;
+	private ServerForPrivateChat serverForPrivateChat;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy'r.' HH:mm:ss");
 
@@ -83,7 +84,6 @@ public class Server implements Runnable {
 		InetAddress remoteIPAddress = null;
 		InetAddress localIP;
 		String name = null;
-		
 
 		boolean startLoop = true;
 
@@ -100,24 +100,35 @@ public class Server implements Runnable {
 				servSocket.close();
 
 			} else {
-				
+
 				setIncreaseNumberOfThreads();
-				
+
 				if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
 						&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
 					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
 				}
 				
-				if (panelForClients == null && getNumberOfConnections() > 2) {
+				
+				
+				if (panelForClients == null && getNumberOfConnections() > 2 && !localIP.getHostAddress().equals(remoteIPAddress.getHostAddress())) {
 
-					InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
-					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-					int port = Integer.parseInt(bufferedReader.readLine());
-					
-					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), port);
-//					bufferedReader.close();
-//					inputStreamReader.close();
+//					InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
+//					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//					int port = Integer.parseInt(bufferedReader.readLine());
+					System.out.println(serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
+					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
+
 				}
+
+//				if (panelForClients == null && getNumberOfConnections() > 2) {
+//
+//					InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
+//					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//					int port = Integer.parseInt(bufferedReader.readLine());
+//					
+//					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), port);
+//
+//				}
 
 				name = remoteIPAddress.getHostName();
 
@@ -265,7 +276,7 @@ public class Server implements Runnable {
 
 		counterOfConnections--;
 	}
-	
+
 	synchronized public void setDecreaseNumberOfThreads() {
 
 		numberOfThreads--;
@@ -275,10 +286,15 @@ public class Server implements Runnable {
 
 		counterOfConnections++;
 	}
-	
+
 	synchronized public void setIncreaseNumberOfThreads() {
 
 		numberOfThreads++;
+	}
+
+	public void setServerForPrivateChat(ServerForPrivateChat serverForPrivateChat) {
+
+		this.serverForPrivateChat = serverForPrivateChat;
 	}
 
 	synchronized public boolean getSendMessage() {
@@ -300,7 +316,7 @@ public class Server implements Runnable {
 
 		return counterOfConnections;
 	}
-	
+
 	synchronized public int getNumberOfThreads() {
 
 		return numberOfThreads;

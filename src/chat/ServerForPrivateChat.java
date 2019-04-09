@@ -21,6 +21,9 @@ public class ServerForPrivateChat implements Runnable {
 	private Thread thread;
 	private HashMap<Object, Boolean> hashMapForNotify = new HashMap<>();
 	private HashMap<String, Integer> checkPrivatePortOfWindowServer = new HashMap<>();
+	private HashMap<String, Boolean> isPrivateWindowOpen = new HashMap<>();
+	private HashMap<String, Integer> myPrivateWindowPortForClient = new HashMap<>();
+	private HashMap<String, Integer> remotePortForMyClinet = new HashMap<>();
 	private NotificationPanel notificationPanel;
 	private PanelForClients panelForClients;
 
@@ -70,17 +73,32 @@ public class ServerForPrivateChat implements Runnable {
 			addressForConnection = remoteAdress.getHostAddress();
 
 			remotePort = Integer.parseInt(bufferedReader.readLine());
+			
+			if(!localHostIP.equals(remoteAdress)) { // add window ON
+				System.out.println("SET");
+				setPortForMyClient(addressForConnection, remotePort);
+				
+			}
+			
 
-			if (localHostIP.getHostAddress().equals(remoteAdress.getHostAddress()) && getPortForPrivateWindow(addressForConnection) != null) {
+//			if (localHostIP.getHostAddress().equals(remoteAdress.getHostAddress()) && getPortForPrivateWindow(addressForConnection) != null) {
+//				
+//				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+//				printWriter.println(getPortForPrivateWindow(addressForConnection));
+//				printWriter.flush();
+			
+			if(getStatusOfPrivateWindow(addressForConnection) != null && getStatusOfPrivateWindow(addressForConnection)) {
 				
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-				printWriter.println(getPortForPrivateWindow(addressForConnection)); System.out.println("ServerPort addr "+getPortForPrivateWindow(addressForConnection));
+				printWriter.println(getMyPrivateWindowPortForRemoteClient(addressForConnection));
 				printWriter.flush();
 
 			} else {
+				
 				setIncreasePort();
 				setIPAndPortForCheck(addressForConnection, remotePort);
-				PrintWriter printWriter = new PrintWriter(socket.getOutputStream()); System.out.println("ServerPort "+port);
+				
+				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 				printWriter.println(port);
 				printWriter.flush();
 
@@ -89,6 +107,7 @@ public class ServerForPrivateChat implements Runnable {
 				clientOfChat = new ClientOfChat(panelForReceivedAndSend);
 				clientOfChat.setServerForPrivateChat(ServerForPrivateChat.this);
 				Server server = new Server(panelForReceivedAndSend, clientOfChat, port);
+				server.setServerForPrivateChat(ServerForPrivateChat.this);
 
 				notificationPanel.setNotification(nick);
 
@@ -135,6 +154,36 @@ public class ServerForPrivateChat implements Runnable {
 		}
 		
 	}
+	
+	synchronized public void setStatusOfPrivateWindow (String remoteIP, Boolean on) {
+		
+		isPrivateWindowOpen.put(remoteIP, on);
+	}
+	
+	synchronized public void setMyPrivateWindowPortForRemoteClient (String remoteIP, Integer myPort) {
+		
+		myPrivateWindowPortForClient.put(remoteIP, myPort);
+	}
+	
+	synchronized public void setPortForMyClient (String remoteIP, Integer remotePort) {
+		
+		remotePortForMyClinet.put(remoteIP, remotePort);
+	}
+	
+	synchronized public void removePortForMyClinet (String remoteIP, Integer remotePort) {
+		
+		remotePortForMyClinet.remove(remoteIP, remotePort);
+	}
+	
+	synchronized public void removeStatusOfPrivateWindow (String ip, Boolean on) {
+		
+		isPrivateWindowOpen.remove(ip, on);
+	}
+	
+	synchronized public void removeMyPrivateWindowPortForRemoteClient (String remoteIP, Integer myPort) {
+		
+		myPrivateWindowPortForClient.remove(remoteIP, myPort);
+	}
 
 	synchronized public void setRemoteIP(InetAddress ip) {
 
@@ -165,10 +214,25 @@ public class ServerForPrivateChat implements Runnable {
 		
 		checkPrivatePortOfWindowServer.remove(ip, checkPrivatePortOfWindowServer.get(ip));
 	}
+	
+	synchronized public Boolean getStatusOfPrivateWindow (String remoteIP) {
+		
+		return isPrivateWindowOpen.get(remoteIP);
+	}
+	
+	synchronized public Integer getMyPrivateWindowPortForRemoteClient (String remoteIP) {
+		
+		return myPrivateWindowPortForClient.get(remoteIP);
+	}
 
 	synchronized public Integer getPortForPrivateWindow(String ip) {
 
 		return checkPrivatePortOfWindowServer.get(ip);
+	}
+	
+	synchronized public Integer getPortForMyClient (String remoteIP) {
+		
+		return remotePortForMyClinet.get(remoteIP);
 	}
 
 	synchronized public String getRemoteIP() {

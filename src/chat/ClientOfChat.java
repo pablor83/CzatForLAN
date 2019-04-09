@@ -25,7 +25,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 	private String textForSend = null;
 	private int port;
 	private int myLocalServerPort;
-	private int numberOfConnectionAttempts = 0;
+//	private int numberOfConnectionAttempts = 0;
 	private String ipToConnect;
 	private String theLastIPConnection;
 	private String sendingTime;
@@ -79,7 +79,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 		Socket socket = new Socket();
 		String ipToConnect = this.ipToConnect;
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(ipToConnect, getPort());
-		System.out.println("CLIENT " + inetSocketAddress);
+		
 		String theIPThatThisThreadCoonectTo = null;
 		InetAddress ipCheck = null;
 
@@ -102,15 +102,15 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 			theIPThatThisThreadCoonectTo = ipRemote.getHostAddress();
 
-			if (!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostAddress()) && getPort() != 4999) {
+//			if (!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostAddress()) && getPort() != 4999) {
+//
+//				serverForPrivateChat.setIPAndPortForCheck(ipToConnect, port);
+//			}
 
-				serverForPrivateChat.setIPAndPortForCheck(ipToConnect, port);
-			}
-
-			if (!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostAddress()) && getReconnectStatus()) {
-
-				sendMyServerPort(socket);
-			}
+//			if (!theIPThatThisThreadCoonectTo.equals(ipCheck.getHostAddress()) && getReconnectStatus()) {
+//
+//				sendMyServerPort(socket);
+//			}
 
 		} catch (UnknownHostException e) {
 
@@ -118,21 +118,21 @@ public class ClientOfChat implements Runnable, KeyListener {
 
 		} catch (IOException e) {
 			
-			numberOfConnectionAttempts++;
-			
-			try {
-				socket.close();
-			} catch (IOException e1) {
+//			numberOfConnectionAttempts++;
+//			
+//			try {
+//				socket.close();
+//			} catch (IOException e1) {
+//
+//				e1.printStackTrace();
+//			}
+//
+//			startLoop = false;
+//
+//			if (numberOfConnectionAttempts < 2)
+//				getRemotePortAndConnect(ipToConnect);
 
-				e1.printStackTrace();
-			}
-
-			startLoop = false;
-
-			if (numberOfConnectionAttempts < 2)
-				getRemotePortAndConnect(ipToConnect);
-
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 
 		while (startLoop) {
@@ -187,7 +187,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 //			e.printStackTrace();
 //		}
 
-		System.out.println("END " + t);
+		
 	}
 
 	synchronized public void runNewThreadOfClient(String ipToConnect) {
@@ -286,7 +286,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 			int port = Integer.valueOf(bufferedReader.readLine());
 
 			serverForPrivateChat.setIPAndPortForCheck(ip, port);
-			System.out.println("AAAAAAAAAAA");
+			
 			runNewThreadOfClient(ip, port);
 
 			bufferedReader.close();

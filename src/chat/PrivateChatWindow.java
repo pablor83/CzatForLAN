@@ -50,6 +50,9 @@ public class PrivateChatWindow extends JFrame {
 		}
 		
 		privateClientOfChat.runNewThreadOfClient(ipForClientConnection, portForClientConection);
+		
+		serverForPrivateChat.setStatusOfPrivateWindow(ipForClientConnection, true);
+		serverForPrivateChat.setMyPrivateWindowPortForRemoteClient(ipForClientConnection, myPort);
 
 		addWindowListener(new WindowAdapter() {
 
@@ -58,10 +61,13 @@ public class PrivateChatWindow extends JFrame {
 				clientOfChat.closeThread(true);
 				clientOfChat.setThreadsAsActive();
 				
-				if(server.getNumberOfThreads() == 1) {
-					serverForPrivateChat.removePortFromHashMap(ipForClientConnection);
-				}
+//				if(server.getNumberOfThreads() == 1) {
+//					serverForPrivateChat.removePortFromHashMap(ipForClientConnection);
+//				}
 				
+				serverForPrivateChat.removeMyPrivateWindowPortForRemoteClient(ipForClientConnection, myPort);
+				serverForPrivateChat.removePortForMyClinet(ipForClientConnection, portForClientConection);
+				serverForPrivateChat.removeStatusOfPrivateWindow(ipForClientConnection, true);
 				
 				server.setCloseServer(true);				
 

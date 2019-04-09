@@ -35,16 +35,18 @@ public class ClientForPrivateMessage implements Runnable {
 
 		try {
 
-			if (this.reconnect) {
-
-				clientOfChat = new ClientOfChat(panelForReceivedAndSend, true);
-			} else {
-
-				clientOfChat = new ClientOfChat(panelForReceivedAndSend);
-			}
+//			if (this.reconnect) {
+//
+//				clientOfChat = new ClientOfChat(panelForReceivedAndSend, true);
+//			} else {
+//
+//				clientOfChat = new ClientOfChat(panelForReceivedAndSend);
+//			}
+			clientOfChat = new ClientOfChat(panelForReceivedAndSend);
 			clientOfChat.setMyLocalServerPort(myServerPort);
 			clientOfChat.setServerForPrivateChat(this.serverForPrivateChat);
 			server = new Server(panelForReceivedAndSend, clientOfChat, myServerPort);
+			server.setServerForPrivateChat(serverForPrivateChat);
 
 			if (this.remotePrivateServerPort == 5111) {
 
@@ -56,14 +58,16 @@ public class ClientForPrivateMessage implements Runnable {
 				InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 				
-				remotePort = Integer.parseInt(bufferedReader.readLine()); System.out.println("CP "+remotePort);
+				remotePort = Integer.parseInt(bufferedReader.readLine());
 
 				bufferedReader.close();
 				socket.close();
-			} else {
-
-				remotePort = this.remotePrivateServerPort;
 			}
+			
+//			else {
+//
+//				remotePort = this.remotePrivateServerPort;
+//			}
 
 			Thread thread = new Thread(this);
 			thread.start();
