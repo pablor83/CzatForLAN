@@ -19,11 +19,8 @@ public class ClientForPrivateMessage implements Runnable {
 	private Object name;
 	private ServerForPrivateChat serverForPrivateChat;
 
-	boolean reconnect = false;
-
 	public ClientForPrivateMessage(String addressForConnection, PanelForReceivedAndSend panelForReceivedAndSend,
-			int myServerPort, Object name, int remotePrivateServerPort, ServerForPrivateChat serverForPrivateChat,
-			boolean reconnect) {
+			int myServerPort, Object name, int remotePrivateServerPort, ServerForPrivateChat serverForPrivateChat) {
 
 		this.addressForConnection = addressForConnection;
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
@@ -31,7 +28,6 @@ public class ClientForPrivateMessage implements Runnable {
 		this.name = name;
 		this.remotePrivateServerPort = remotePrivateServerPort;
 		this.serverForPrivateChat = serverForPrivateChat;
-		this.reconnect = reconnect;
 
 		try {
 
@@ -48,7 +44,7 @@ public class ClientForPrivateMessage implements Runnable {
 			server = new Server(panelForReceivedAndSend, clientOfChat, myServerPort);
 			server.setServerForPrivateChat(serverForPrivateChat);
 
-			if (this.remotePrivateServerPort == 5111) {
+//			if (this.remotePrivateServerPort == 5111) {
 
 				Socket socket = new Socket(this.addressForConnection, this.remotePrivateServerPort);
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
@@ -62,7 +58,7 @@ public class ClientForPrivateMessage implements Runnable {
 
 				bufferedReader.close();
 				socket.close();
-			}
+//			}
 			
 //			else {
 //

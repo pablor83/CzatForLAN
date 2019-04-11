@@ -81,21 +81,21 @@ public class ClientOfChat implements Runnable, KeyListener {
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(ipToConnect, getPort());
 		
 		String theIPThatThisThreadCoonectTo = null;
-		InetAddress ipCheck = null;
+//		InetAddress ipCheck = null;
 
-		boolean startLoop = true;
+//		boolean startLoop = true;
+
+//		try {
+//
+//			ipCheck = InetAddress.getLocalHost();
+//		} catch (UnknownHostException e1) {
+//
+//			e1.printStackTrace();
+//		}
 
 		try {
 
-			ipCheck = InetAddress.getLocalHost();
-		} catch (UnknownHostException e1) {
-
-			e1.printStackTrace();
-		}
-
-		try {
-
-			socket.connect(inetSocketAddress, 3500);
+			socket.connect(inetSocketAddress);
 
 			theLastIPConnection = getIPToConnect();
 			InetAddress ipRemote = socket.getInetAddress();
@@ -135,7 +135,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 			e.printStackTrace();
 		}
 
-		while (startLoop) {
+		while (true) {
 
 			try {
 
@@ -285,7 +285,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 			int port = Integer.valueOf(bufferedReader.readLine());
 
-			serverForPrivateChat.setIPAndPortForCheck(ip, port);
+//			serverForPrivateChat.setIPAndPortForCheck(ip, port);
 			
 			runNewThreadOfClient(ip, port);
 

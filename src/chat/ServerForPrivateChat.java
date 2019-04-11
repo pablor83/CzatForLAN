@@ -20,7 +20,7 @@ public class ServerForPrivateChat implements Runnable {
 	private String remoteIP;
 	private Thread thread;
 	private HashMap<Object, Boolean> hashMapForNotify = new HashMap<>();
-	private HashMap<String, Integer> checkPrivatePortOfWindowServer = new HashMap<>();
+//	private HashMap<String, Integer> checkPrivatePortOfWindowServer = new HashMap<>();
 	private HashMap<String, Boolean> isPrivateWindowOpen = new HashMap<>();
 	private HashMap<String, Integer> myPrivateWindowPortForClient = new HashMap<>();
 	private HashMap<String, Integer> remotePortForMyClinet = new HashMap<>();
@@ -96,7 +96,7 @@ public class ServerForPrivateChat implements Runnable {
 			} else {
 				
 				setIncreasePort();
-				setIPAndPortForCheck(addressForConnection, remotePort);
+//				setIPAndPortForCheck(addressForConnection, remotePort);
 				
 				PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 				printWriter.println(port);
@@ -142,18 +142,18 @@ public class ServerForPrivateChat implements Runnable {
 		thread.start();
 	}
 
-	synchronized public void setIPAndPortForCheck(String ip, Integer port) {
-
-		if(getPortForPrivateWindow(ip) != null) {
-			
-			checkPrivatePortOfWindowServer.replace(ip, port);
-			
-		} else {
-			
-			checkPrivatePortOfWindowServer.put(ip, port);
-		}
-		
-	}
+//	synchronized public void setIPAndPortForCheck(String ip, Integer port) {
+//
+//		if(getPortForPrivateWindow(ip) != null) {
+//			
+//			checkPrivatePortOfWindowServer.replace(ip, port);
+//			
+//		} else {
+//			
+//			checkPrivatePortOfWindowServer.put(ip, port);
+//		}
+//		
+//	}
 	
 	synchronized public void setStatusOfPrivateWindow (String remoteIP, Boolean on) {
 		
@@ -210,10 +210,10 @@ public class ServerForPrivateChat implements Runnable {
 		hashMapForNotify.replace(nick, false, true);
 	}
 	
-	synchronized public void removePortFromHashMap(String ip) {
-		
-		checkPrivatePortOfWindowServer.remove(ip, checkPrivatePortOfWindowServer.get(ip));
-	}
+//	synchronized public void removePortFromHashMap(String ip) {
+//		
+//		checkPrivatePortOfWindowServer.remove(ip, checkPrivatePortOfWindowServer.get(ip));
+//	}
 	
 	synchronized public Boolean getStatusOfPrivateWindow (String remoteIP) {
 		
@@ -225,10 +225,10 @@ public class ServerForPrivateChat implements Runnable {
 		return myPrivateWindowPortForClient.get(remoteIP);
 	}
 
-	synchronized public Integer getPortForPrivateWindow(String ip) {
-
-		return checkPrivatePortOfWindowServer.get(ip);
-	}
+//	synchronized public Integer getPortForPrivateWindow(String ip) {
+//
+//		return checkPrivatePortOfWindowServer.get(ip);
+//	}
 	
 	synchronized public Integer getPortForMyClient (String remoteIP) {
 		

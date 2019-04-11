@@ -30,9 +30,8 @@ public class Server implements Runnable {
 
 	private int port;
 	private int counterOfConnections = 0;
-	private int numberOfThreads = 0;
+//	private int numberOfThreads = 0;
 
-//	int  iT = 1;
 	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, int port) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
@@ -101,22 +100,22 @@ public class Server implements Runnable {
 
 			} else {
 
-				setIncreaseNumberOfThreads();
+//				setIncreaseNumberOfThreads();
 
 				if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
 						&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
 					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
 				}
-				
-				
-				
-				if (panelForClients == null && getNumberOfConnections() > 2 && !localIP.getHostAddress().equals(remoteIPAddress.getHostAddress())) {
+
+				if (panelForClients == null && getNumberOfConnections() > 2
+						&& !localIP.getHostAddress().equals(remoteIPAddress.getHostAddress())) {
 
 //					InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 //					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 //					int port = Integer.parseInt(bufferedReader.readLine());
 					System.out.println(serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
-					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
+					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(),
+							serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
 
 				}
 
@@ -174,16 +173,14 @@ public class Server implements Runnable {
 						panelForReceivedAndSend.setTextInWindowChat(
 								name + "> " + "Zamkn¹³ okno" + "\n" + simpleDateFormat.format(date) + "\n\n");
 //						setDecreaseNumberOfConnections();
-						setDecreaseNumberOfThreads();
+//						setDecreaseNumberOfThreads();
 						clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
 						socket.close();
 
 						if (!getStatusOfCloseServerOption()) {
 //							setIncreaseNumberOfConnections();
 							startNewServer();
-						}
-
-						if (getStatusOfCloseServerOption()) {
+						} else {
 
 							Socket socketToCloseSocket = new Socket("localhost", port);
 							bufferedStream.close();
@@ -196,7 +193,9 @@ public class Server implements Runnable {
 					}
 
 				}
+
 				if (!getStatusOfCloseServerOption() && getSendMessage() && text != null && text.matches("/nick .+")) {
+
 					String nameBeforeChange = name;
 
 					name = text.substring(6);
@@ -204,6 +203,7 @@ public class Server implements Runnable {
 					date = new Date();
 					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieni³ nick na "
 							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
+
 					if (panelForClients != null) {
 
 						int numberOfCell = panelForClients.getTheTablePosition(nameBeforeChange);
@@ -216,9 +216,8 @@ public class Server implements Runnable {
 
 						panelForReceivedAndSend.setTextInWindowChat(
 								name + "> " + text + "\n" + simpleDateFormat.format(new Date()) + "\n\n");
-					}
 
-					else {
+					} else {
 
 						panelForReceivedAndSend.setTextInWindowChat(
 								name + "> " + text + "\n" + clientOfChat.getSendindTime() + "\n\n");
@@ -234,9 +233,11 @@ public class Server implements Runnable {
 //				e.printStackTrace();
 
 				if (panelForClients != null) {
+					
 					int numberOfCell = panelForClients.getTheTablePosition(name);
 					panelForClients.removeClientPanelList(panelForClients.getTheTablePosition(name));
 					panelForClients.removeIPFromList(panelForClients.getTheTablePosition(name));
+					
 				}
 
 				panelForReceivedAndSend.setTextInWindowChat(
@@ -277,20 +278,20 @@ public class Server implements Runnable {
 		counterOfConnections--;
 	}
 
-	synchronized public void setDecreaseNumberOfThreads() {
-
-		numberOfThreads--;
-	}
+//	synchronized public void setDecreaseNumberOfThreads() {
+//
+//		numberOfThreads--;
+//	}
 
 	synchronized public void setIncreaseNumberOfConnections() {
 
 		counterOfConnections++;
 	}
 
-	synchronized public void setIncreaseNumberOfThreads() {
-
-		numberOfThreads++;
-	}
+//	synchronized public void setIncreaseNumberOfThreads() {
+//
+//		numberOfThreads++;
+//	}
 
 	public void setServerForPrivateChat(ServerForPrivateChat serverForPrivateChat) {
 
@@ -317,9 +318,9 @@ public class Server implements Runnable {
 		return counterOfConnections;
 	}
 
-	synchronized public int getNumberOfThreads() {
-
-		return numberOfThreads;
-	}
+//	synchronized public int getNumberOfThreads() {
+//
+//		return numberOfThreads;
+//	}
 
 }

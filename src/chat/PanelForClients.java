@@ -185,7 +185,7 @@ public class PanelForClients extends JPanel implements MouseListener {
 
 			ClientForPrivateMessage clientForPrivateMessage = new ClientForPrivateMessage(addressForConnection,
 					panelForReceivedAndSend, myServerPort, tableModel.getValueAt(table.getSelectedRow(), 0), 5111,
-					serverForPrivateChat, false);
+					serverForPrivateChat);
 
 //			if (serverForPrivateChat.getPortForPrivateWindow(addressForConnection) == null) {				
 //				
