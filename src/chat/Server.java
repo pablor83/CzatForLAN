@@ -18,6 +18,7 @@ public class Server implements Runnable {
 	private ClientOfChat clientOfChat;
 	private PanelForClients panelForClients;
 	private ServerForPrivateChat serverForPrivateChat;
+	private NotificationPanel notificationPanel;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy'r.' HH:mm:ss");
 
@@ -27,16 +28,22 @@ public class Server implements Runnable {
 	private boolean sendMessage = true;
 	private boolean closeServer = false;
 	private boolean privateServer = false;
+	private boolean setNotification = true;
+	private boolean windowOfPrivateChat;
 
 	private int port;
 	private int counterOfConnections = 0;
 //	private int numberOfThreads = 0;
 
-	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, int port) {
+	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, PanelForClients panelForClients,
+			int port, NotificationPanel notificationPanel, boolean windowOfPrivateChat) {
 
 		this.panelForReceivedAndSend = panelForReceivedAndSend;
 		this.clientOfChat = clientOfChat;
+		this.panelForClients = panelForClients;
 		this.port = port;
+		this.notificationPanel = notificationPanel;
+		this.windowOfPrivateChat = windowOfPrivateChat;
 
 		try {
 			servSocket = new ServerSocket(this.port);
@@ -49,24 +56,24 @@ public class Server implements Runnable {
 
 	}
 
-	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, PanelForClients panelForClients,
-			int port) {
-
-		this.panelForReceivedAndSend = panelForReceivedAndSend;
-		this.clientOfChat = clientOfChat;
-		this.panelForClients = panelForClients;
-		this.port = port;
-
-		try {
-			servSocket = new ServerSocket(port);
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
-
-		startNewServer();
-
-	}
+//	Server(PanelForReceivedAndSend panelForReceivedAndSend, ClientOfChat clientOfChat, PanelForClients panelForClients,
+//			int port) {
+//
+//		this.panelForReceivedAndSend = panelForReceivedAndSend;
+//		this.clientOfChat = clientOfChat;
+//		this.panelForClients = panelForClients;
+//		this.port = port;
+//
+//		try {
+//			servSocket = new ServerSocket(port);
+//		} catch (IOException e) {
+//
+//			e.printStackTrace();
+//		}
+//
+//		startNewServer();
+//
+//	}
 
 	public void startNewServer() {
 
@@ -78,12 +85,12 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		String s = thread.getName();
-		Thread thread1 = thread;
+		Thread thread = this.thread;
 		Socket socket = new Socket();
 		InetAddress remoteIPAddress = null;
-		InetAddress localIP;
+		InetAddress localIP = null;
 		String name = null;
-
+		System.out.println("START 1 " + s);
 		boolean startLoop = true;
 
 		try {
@@ -91,33 +98,34 @@ public class Server implements Runnable {
 			setIncreaseNumberOfConnections();
 			localIP = InetAddress.getLocalHost();
 			remoteIPAddress = socket.getInetAddress();
-
-			if (remoteIPAddress.getHostAddress().equals("127.0.0.1")) {
-
-				startLoop = false;
-				socket.close();
-				servSocket.close();
-
-			} else {
+			System.out.println("START accept " + s + " " + remoteIPAddress);
+//			if (remoteIPAddress.equals("127.0.0.1")) {
+//				
+//				startLoop = false;
+//				socket.close();
+//				servSocket.close();
+//				
+//			} else {
 
 //				setIncreaseNumberOfThreads();
 
-				if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
-						&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
-					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
-				}
+			if (port == 4999 && !remoteIPAddress.getHostAddress().equals(localIP.getHostAddress())
+					&& !remoteIPAddress.getHostAddress().equals(clientOfChat.getTheLastIPConnection())) {
 
-				if (panelForClients == null && getNumberOfConnections() > 2
-						&& !localIP.getHostAddress().equals(remoteIPAddress.getHostAddress())) {
+				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(), 4999);
+			}
+
+			if (windowOfPrivateChat == true && getNumberOfConnections() > 2
+					&& !localIP.getHostAddress().equals(remoteIPAddress.getHostAddress())) {
 
 //					InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 //					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 //					int port = Integer.parseInt(bufferedReader.readLine());
-					System.out.println(serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
-					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(),
-							serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
 
-				}
+				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(),
+						serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
+
+			}
 
 //				if (panelForClients == null && getNumberOfConnections() > 2) {
 //
@@ -129,28 +137,28 @@ public class Server implements Runnable {
 //
 //				}
 
-				name = remoteIPAddress.getHostName();
+			name = remoteIPAddress.getHostName();
 
-				if (panelForClients != null) {
+			if (windowOfPrivateChat == false) {
 
-					panelForClients.addNameOfClient(name);
-					panelForClients.addIPToList(remoteIPAddress.getHostAddress());
-				}
-
-				date = new Date();
-				panelForReceivedAndSend.setTextInWindowChat(
-						name + "> " + "Po³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
-
-				if (panelForClients != null) {
-
-					startNewServer();
-
-				} else if (panelForClients == null && getNumberOfConnections() < 2) {
-
-					startNewServer();
-				}
-
+				panelForClients.addNameOfClient(name);
+				panelForClients.addIPToList(remoteIPAddress.getHostAddress());
 			}
+
+			date = new Date();
+			panelForReceivedAndSend
+					.setTextInWindowChat(name + "> " + "PoÅ‚Ä…czyÅ‚ siÄ™" + "\n" + simpleDateFormat.format(date) + "\n\n");
+
+			if (windowOfPrivateChat == false) {
+
+				startNewServer();
+
+			} else if (windowOfPrivateChat == true && getNumberOfConnections() < 2) {
+
+				startNewServer();
+			}
+
+//			}
 
 		} catch (IOException e) {
 
@@ -171,10 +179,13 @@ public class Server implements Runnable {
 					if (text == null) {
 
 						panelForReceivedAndSend.setTextInWindowChat(
-								name + "> " + "Zamkn¹³ okno" + "\n" + simpleDateFormat.format(date) + "\n\n");
+								name + "> " + "ZamknÄ…Å‚ okno" + "\n" + simpleDateFormat.format(date) + "\n\n");
 //						setDecreaseNumberOfConnections();
 //						setDecreaseNumberOfThreads();
 						clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
+						clientOfChat.setThreadsAsActive();
+						bufferedStream.close();
+						inputStreamReader.close();
 						socket.close();
 
 						if (!getStatusOfCloseServerOption()) {
@@ -182,10 +193,11 @@ public class Server implements Runnable {
 							startNewServer();
 						} else {
 
-							Socket socketToCloseSocket = new Socket("localhost", port);
-							bufferedStream.close();
-							inputStreamReader.close();
-							socket.close();
+//							Socket socketToCloseSocket = new Socket("localhost", port);
+//							bufferedStream.close();
+//							inputStreamReader.close();
+//							socket.close();
+//							socketToCloseSocket.close();
 //							servSocket.close();
 						}
 
@@ -201,10 +213,12 @@ public class Server implements Runnable {
 					name = text.substring(6);
 
 					date = new Date();
-					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieni³ nick na "
+					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmieniÅ‚ nick na "
 							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
 
-					if (panelForClients != null) {
+					serverForPrivateChat.setNewNick(name);
+
+					if (windowOfPrivateChat == false) {
 
 						int numberOfCell = panelForClients.getTheTablePosition(nameBeforeChange);
 						panelForClients.changeValueOfCell(name, numberOfCell, 0);
@@ -217,11 +231,22 @@ public class Server implements Runnable {
 						panelForReceivedAndSend.setTextInWindowChat(
 								name + "> " + text + "\n" + simpleDateFormat.format(new Date()) + "\n\n");
 
+						if (setNotification && panelForClients != null && !localIP.getHostAddress().equals(remoteIPAddress.getHostAddress())
+								&& windowOfPrivateChat == true) {
+
+							Object nick = panelForClients.getNickFromPanel(remoteIPAddress.getHostAddress());
+							serverForPrivateChat.setNick(nick);
+
+							notificationPanel.setNotification(nick);
+							setNotification = false;
+						}
+
 					} else {
 
 						panelForReceivedAndSend.setTextInWindowChat(
 								name + "> " + text + "\n" + clientOfChat.getSendindTime() + "\n\n");
 						clientOfChat.setIsReceivingTime(false);
+
 					}
 
 				}
@@ -232,16 +257,16 @@ public class Server implements Runnable {
 
 //				e.printStackTrace();
 
-				if (panelForClients != null) {
-					
+				if (windowOfPrivateChat == false) {
+
 					int numberOfCell = panelForClients.getTheTablePosition(name);
 					panelForClients.removeClientPanelList(panelForClients.getTheTablePosition(name));
 					panelForClients.removeIPFromList(panelForClients.getTheTablePosition(name));
-					
+
 				}
 
 				panelForReceivedAndSend.setTextInWindowChat(
-						name + "> " + "Roz³¹czy³ siê" + "\n" + simpleDateFormat.format(date) + "\n\n");
+						name + "> " + "RozÅ‚Ä…czyÅ‚ siÄ™" + "\n" + simpleDateFormat.format(date) + "\n\n");
 				clientOfChat.setIPToDisconnect(remoteIPAddress.getHostAddress());
 				setSendMessage(false);
 				clientOfChat.setThreadsAsActive();
@@ -255,7 +280,7 @@ public class Server implements Runnable {
 			}
 
 		}
-
+		System.out.println("END " + s);
 	}
 
 	synchronized public void setSendMessage(boolean sendMessage) {

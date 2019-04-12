@@ -69,8 +69,8 @@ public class PrivateChatWindow extends JFrame {
 				serverForPrivateChat.removePortForMyClinet(ipForClientConnection, portForClientConection);
 				serverForPrivateChat.removeStatusOfPrivateWindow(ipForClientConnection, true);
 				
-				server.setCloseServer(true);				
-
+				server.setCloseServer(true);
+				
 				dispose();
 
 			}

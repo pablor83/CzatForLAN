@@ -41,7 +41,7 @@ public class ClientForPrivateMessage implements Runnable {
 			clientOfChat = new ClientOfChat(panelForReceivedAndSend);
 			clientOfChat.setMyLocalServerPort(myServerPort);
 			clientOfChat.setServerForPrivateChat(this.serverForPrivateChat);
-			server = new Server(panelForReceivedAndSend, clientOfChat, myServerPort);
+			server = new Server(panelForReceivedAndSend, clientOfChat, null, myServerPort, null, true);
 			server.setServerForPrivateChat(serverForPrivateChat);
 
 //			if (this.remotePrivateServerPort == 5111) {

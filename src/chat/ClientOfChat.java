@@ -94,7 +94,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 //		}
 
 		try {
-
+			
 			socket.connect(inetSocketAddress);
 
 			theLastIPConnection = getIPToConnect();
@@ -147,13 +147,13 @@ public class ClientOfChat implements Runnable, KeyListener {
 				}
 
 				if (getStatusOfClosingOption()) {
-
+					
 					socket.close();
 					break;
 				}
 
 				if (getIPToDisconnect(theIPThatThisThreadCoonectTo)) {
-
+					System.out.println("socket close "+ t);
 					socket.close();
 					removeIPAfterDisconnection(theIPThatThisThreadCoonectTo);
 					setSnoozeThreads();
@@ -177,7 +177,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 				e.printStackTrace();
 			}
 
-			setSnoozeThreads();
+			setSnoozeThreads(); 
 		}
 
 //		try {
