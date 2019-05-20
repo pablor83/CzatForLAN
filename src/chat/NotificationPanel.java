@@ -22,7 +22,7 @@ public class NotificationPanel extends JPanel implements MouseListener {
 
 		setLayout(null);
 
-		TitledBorder borderForButtons = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Opcje");
+		TitledBorder borderForButtons = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Powiadomienia");
 		borderForButtons.setTitleJustification(TitledBorder.CENTER);
 		setBorder(borderForButtons);
 

@@ -25,10 +25,12 @@ public class ClientOfChat implements Runnable, KeyListener {
 	private String textForSend = null;
 	private int port;
 	private int myLocalServerPort;
-//	private int numberOfConnectionAttempts = 0;
+	private int numberOfConnections = 0;
 	private String ipToConnect;
 	private String theLastIPConnection;
 	private String sendingTime;
+	
+	private String remoteIP;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy'r.' HH:mm:ss");
 	private Date date;
@@ -77,9 +79,9 @@ public class ClientOfChat implements Runnable, KeyListener {
 		String t = thread.getName();
 		String tName = thread.getName();
 		Socket socket = new Socket();
-		String ipToConnect = this.ipToConnect;
+		String ipToConnect = this.ipToConnect; System.out.println("Thread "+t);
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(ipToConnect, getPort());
-		
+		numberOfConnections++;
 		String theIPThatThisThreadCoonectTo = null;
 //		InetAddress ipCheck = null;
 
@@ -92,8 +94,15 @@ public class ClientOfChat implements Runnable, KeyListener {
 //
 //			e1.printStackTrace();
 //		}
-
+		
 		try {
+			
+			InetAddress ip = InetAddress.getLocalHost();
+			
+			if(!ip.getHostAddress().equals(ipToConnect) && port != 4999) {
+				
+				remoteIP = ipToConnect;
+			}
 			
 			socket.connect(inetSocketAddress);
 
@@ -152,22 +161,24 @@ public class ClientOfChat implements Runnable, KeyListener {
 					break;
 				}
 
-				if (getIPToDisconnect(theIPThatThisThreadCoonectTo)) {
-					System.out.println("socket close "+ t);
-					socket.close();
-					removeIPAfterDisconnection(theIPThatThisThreadCoonectTo);
-					setSnoozeThreads();
-					break;
+				
+					if (getIPToDisconnect(theIPThatThisThreadCoonectTo)) {
+						numberOfConnections--;						
+						socket.close();
+						removeIPAfterDisconnection(theIPThatThisThreadCoonectTo);
+//						setSnoozeThreads();
+						break;
 
-				}
+					}
+					
+					if (getTextForSend() != null) {
+						date = new Date();
+						PrintWriter sendMessage = new PrintWriter(socket.getOutputStream());
+						sendMessage.println(getTextForSend());
+						sendMessage.flush();
 
-				if (getTextForSend() != null) {
-					date = new Date();
-					PrintWriter sendMessage = new PrintWriter(socket.getOutputStream());
-					sendMessage.println(getTextForSend());
-					sendMessage.flush();
-
-				}
+					}
+				
 
 			} catch (IOException e) {
 
@@ -368,6 +379,11 @@ public class ClientOfChat implements Runnable, KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 
 			panelForReceivedAndSend.getFieldOfSendMessage().setEditable(false);
+			
+//			if(numberOfConnections == 1) {
+//				
+//				getRemotePortAndConnect(remoteIP);				
+//			}
 
 			String text = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
 
@@ -376,14 +392,17 @@ public class ClientOfChat implements Runnable, KeyListener {
 				panelForReceivedAndSend.clearWindow();
 				panelForReceivedAndSend.getFieldOfSendMessage().setText("");
 
-			} else if (text.matches(".+")) {
-
-				textForSend = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
-				date = new Date();
-				sendingTime = "Wys³ano: " + simpleDateFormat.format(date);
-				isReceivingTime = true;
-				panelForReceivedAndSend.getFieldOfSendMessage().setText("");
-				setThreadsAsActive();
+			} else if (text.matches(".+")) {			
+					
+					textForSend = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
+					date = new Date();
+					sendingTime = "Wys³ano: " + simpleDateFormat.format(date);
+					isReceivingTime = true;
+					panelForReceivedAndSend.getFieldOfSendMessage().setText("");
+					setThreadsAsActive();
+					
+			
+				
 			}
 
 		}

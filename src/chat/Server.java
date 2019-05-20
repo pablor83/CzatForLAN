@@ -90,7 +90,7 @@ public class Server implements Runnable {
 		InetAddress remoteIPAddress = null;
 		InetAddress localIP = null;
 		String name = null;
-		System.out.println("START 1 " + s);
+		
 		boolean startLoop = true;
 
 		try {
@@ -98,7 +98,7 @@ public class Server implements Runnable {
 			setIncreaseNumberOfConnections();
 			localIP = InetAddress.getLocalHost();
 			remoteIPAddress = socket.getInetAddress();
-			System.out.println("START accept " + s + " " + remoteIPAddress);
+			
 //			if (remoteIPAddress.equals("127.0.0.1")) {
 //				
 //				startLoop = false;
@@ -121,9 +121,14 @@ public class Server implements Runnable {
 //					InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 //					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 //					int port = Integer.parseInt(bufferedReader.readLine());
-
-				clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(),
-						serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
+				
+				if(serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()) != null) {
+					
+					clientOfChat.runNewThreadOfClient(remoteIPAddress.getHostAddress(),
+							serverForPrivateChat.getPortForMyClient(remoteIPAddress.getHostAddress()));
+				}
+				
+				
 
 			}
 
@@ -173,7 +178,7 @@ public class Server implements Runnable {
 				BufferedReader bufferedStream = new BufferedReader(inputStreamReader);
 
 				String text = bufferedStream.readLine();
-
+				System.out.println(text);
 				synchronized (this) {
 
 					if (text == null) {
@@ -216,12 +221,15 @@ public class Server implements Runnable {
 					panelForReceivedAndSend.setTextInWindowChat(name + "> " + nameBeforeChange + " zmienił nick na "
 							+ name + "\n" + simpleDateFormat.format(date) + "\n\n");
 
-					serverForPrivateChat.setNewNick(name);
+					
 
 					if (windowOfPrivateChat == false) {
 
 						int numberOfCell = panelForClients.getTheTablePosition(nameBeforeChange);
 						panelForClients.changeValueOfCell(name, numberOfCell, 0);
+					} else {
+						
+						serverForPrivateChat.setNewNick(name);
 					}
 
 				} else if (!getStatusOfCloseServerOption() && getSendMessage()) {
@@ -280,8 +288,9 @@ public class Server implements Runnable {
 			}
 
 		}
-		System.out.println("END " + s);
+		
 	}
+	
 
 	synchronized public void setSendMessage(boolean sendMessage) {
 
