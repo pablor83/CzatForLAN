@@ -21,7 +21,7 @@ A simple program to communicate on a LAN with other users
 * JAVA
 
 ## Setup
-Compile `javac -encoding UTF-8  chat/*.java`  
+Compile `javac -encoding UTF-8 chat/*.java`  
 Create `jar cfe CzatForLAN.jar chat.WindowOfChat .`  
 Run `java -jar CzatForLAN.jar`
 
