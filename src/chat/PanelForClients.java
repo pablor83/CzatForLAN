@@ -38,7 +38,7 @@ public class PanelForClients extends JPanel implements MouseListener {
 		setLayout(null);
 		setBorder(BorderFactory.createLineBorder(Color.black, 1));
 		TitledBorder borderForClients = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-				"Przy³¹czeni klienci");
+				"PrzyÅ‚Ä…czeni klienci");
 		borderForClients.setTitleJustification(TitledBorder.CENTER);
 		setBorder(borderForClients);
 

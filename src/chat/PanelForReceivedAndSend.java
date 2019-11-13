@@ -35,11 +35,11 @@ public class PanelForReceivedAndSend extends JPanel {
 		fieldOfSendMessage = new JTextArea();
 		JScrollPane scrollForSendMessage = new JScrollPane(fieldOfSendMessage);
 
-		JLabel receivedLabel = new JLabel("Otrzymane wiadomoúci: ");
+		JLabel receivedLabel = new JLabel("Otrzymane wiadomo≈õci: ");
 		receivedLabel.setBounds(20, 10, 150, 20);
 		add(receivedLabel);
 
-		JLabel sendLabel = new JLabel("Wyúlij: ");
+		JLabel sendLabel = new JLabel("Wy≈õlij: ");
 
 		setBorder(BorderFactory.createLineBorder(Color.black, 1));
 

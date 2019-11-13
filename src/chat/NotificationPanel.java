@@ -34,7 +34,7 @@ public class NotificationPanel extends JPanel implements MouseListener {
 				return false;
 			}
 		};
-		tableModel.addColumn("Przychodz¹ce powiadomienia");
+		tableModel.addColumn("PrzychodzÄ…ce powiadomienia");
 
 		table = new JTable(tableModel);
 		table.setTableHeader(null);
