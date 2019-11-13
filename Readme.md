@@ -22,7 +22,7 @@ A simple program to communicate on a LAN with other users
 
 ## Setup
 Compile `javac -encoding UTF-8 chat/*.java`  
-Create `jar cfe CzatForLAN.jar chat.WindowOfChat .`  
+Create jar file `jar cfe CzatForLAN.jar chat.WindowOfChat .`  
 Run `java -jar CzatForLAN.jar`
 
 ## Features
