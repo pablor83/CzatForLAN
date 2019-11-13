@@ -396,7 +396,7 @@ public class ClientOfChat implements Runnable, KeyListener {
 					
 					textForSend = panelForReceivedAndSend.getTextFromfieldOfSendMessage();
 					date = new Date();
-					sendingTime = "Wys≥ano: " + simpleDateFormat.format(date);
+					sendingTime = "Wys≈Çano: " + simpleDateFormat.format(date);
 					isReceivingTime = true;
 					panelForReceivedAndSend.getFieldOfSendMessage().setText("");
 					setThreadsAsActive();
