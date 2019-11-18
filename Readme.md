@@ -2,11 +2,11 @@
 
 >A simple LAN Chat.
 
-![Example view] (https://raw.githubusercontent.com/pablor83/CzatForLAN/master/ChatForLan.png)
+![Example view](https://raw.githubusercontent.com/pablor83/CzatForLAN/master/ChatForLan.png)
 
-![Chat private window] (https://raw.githubusercontent.com/pablor83/CzatForLAN/master/ChatPrivateWindow.jpg)
+![Chat private window](https://raw.githubusercontent.com/pablor83/CzatForLAN/master/ChatPrivateWindow.jpg)
 
-![Chat windows] (https://raw.githubusercontent.com/pablor83/CzatForLAN/master/ChatWindows.jpg)
+![Chat windows](https://raw.githubusercontent.com/pablor83/CzatForLAN/master/ChatWindows.jpg)
 
 ## Table of contents
 * [General info](#general-info)
