@@ -20,7 +20,7 @@ CzatForLAN is a JAVA app.
 A simple program to communicate on a LAN with other users
 
 ## Technologies
-* JAVA
+* JAVA 1.8
 
 ## Setup
 Compile `javac -encoding UTF-8 chat/*.java`  
